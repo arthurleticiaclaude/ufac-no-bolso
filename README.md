@@ -1,4 +1,4 @@
-# UFAC no Bolso
+# UFAC+
 
 App independente, feito por um aluno. Não é um aplicativo oficial da Ufac.
 
