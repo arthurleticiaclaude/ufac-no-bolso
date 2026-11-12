@@ -1,0 +1,92 @@
+/* Liquid Glass do iOS 26 imitado em CSS: desfoque com saturação, borda especular em gradiente,
+   brilho interno no topo e sombra suave. O efeito oficial só existe em app nativo. */
+
+.vidro {
+  position: relative;
+  isolation: isolate;
+  background: var(--glass-tint);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(185%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(185%);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 0 var(--glass-rim-low);
+  border-radius: var(--raio-cartao);
+  corner-shape: squircle;
+}
+
+/* Borda especular: luz vinda de cima à esquerda, apagando para baixo. */
+.vidro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(150deg, var(--glass-rim) 0%, var(--glass-rim-low) 34%, transparent 55%, var(--glass-rim-low) 82%, var(--glass-rim) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Brilho interno: a "lente" refletindo a luz no topo. */
+.vidro::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(120% 70% at 20% -10%, var(--glass-glow, rgba(255, 255, 255, 0.28)), transparent 55%);
+  pointer-events: none;
+  z-index: -1;
+  mix-blend-mode: soft-light;
+}
+
+.vidro.forte {
+  background: var(--glass-tint-strong);
+}
+
+/* Vidro tingido (cartão do RU, botões de destaque). */
+.vidro.tingido {
+  background: color-mix(in srgb, var(--primary) 82%, transparent);
+  color: #fff;
+  --glass-rim: rgba(255, 255, 255, 0.7);
+  --glass-rim-low: rgba(255, 255, 255, 0.12);
+}
+
+/* Fundo com manchas de cor para o vidro ter o que refratar. */
+.fundo {
+  position: fixed;
+  inset: -20vmax;
+  z-index: -1;
+  background:
+    radial-gradient(40vmax 40vmax at 15% 20%, var(--blob-1), transparent 70%),
+    radial-gradient(36vmax 36vmax at 90% 35%, var(--blob-2), transparent 70%),
+    radial-gradient(44vmax 44vmax at 40% 95%, var(--blob-3), transparent 70%),
+    var(--bg);
+  pointer-events: none;
+}
+
+/* Toque: o vidro "afunda" e acende, como no iOS 26. */
+.tocavel {
+  transition: transform 260ms var(--mola), filter 200ms var(--suave);
+  -webkit-tap-highlight-color: transparent;
+}
+.tocavel:active {
+  transform: scale(0.97);
+  filter: brightness(1.06);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .vidro {
+    background: var(--surface);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .vidro {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .vidro.tingido {
+    background: var(--primary);
+  }
+}

@@ -1,0 +1,45 @@
+// Uma única família de ícones de traço arredondado (24×24), desenhados aqui para não baixar nada.
+const P = {
+  inicio: '<path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5H15v-6h-6v6H5.5A1.5 1.5 0 0 1 4 19z"/>',
+  horarios: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  notas: '<path d="M5 4.5h10.5L19 8v11.5H5z"/><path d="M8.5 11h7M8.5 14.5h7M8.5 7.5h4"/>',
+  relatorios: '<path d="M7 3.5h7l4.5 4.5v12.5H7z"/><path d="M14 3.5V8h4.5"/><path d="M9.5 13h6M9.5 16.5h4"/>',
+  ru: '<path d="M7 3.5v7a2 2 0 0 0 2 2v8"/><path d="M5 3.5v5M9 3.5v5"/><path d="M16.5 20.5v-17c-2 1-3 3.5-3 6.5 0 2 1 3 3 3"/>',
+  menu: '<path d="M5 7h14M5 12h14M5 17h14"/>',
+  sino: '<path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 1.5H5z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  qr: '<rect x="4" y="4" width="6" height="6" rx="1.2"/><rect x="14" y="4" width="6" height="6" rx="1.2"/><rect x="4" y="14" width="6" height="6" rx="1.2"/><path d="M14 14h2.5v2.5H14zM17.5 17.5H20V20h-2.5zM14 19.5h1.5M19.5 14h.5"/>',
+  mais: '<path d="M12 5v14M5 12h14"/>',
+  fechar: '<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',
+  seta: '<path d="M9.5 6l6 6-6 6"/>',
+  voltar: '<path d="M14.5 6l-6 6 6 6"/>',
+  calendario: '<rect x="4" y="5.5" width="16" height="15" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
+  olho: '<path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+  baixar: '<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/>',
+  compartilhar: '<path d="M12 15V4M8 7.5 12 4l4 3.5"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v6A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-6a1.5 1.5 0 0 0-1.5-1.5H16"/>',
+  sair: '<path d="M14 4.5H7A1.5 1.5 0 0 0 5.5 6v12A1.5 1.5 0 0 0 7 19.5h7"/><path d="M11 12h9.5M17 8.5l3.5 3.5-3.5 3.5"/>',
+  engrenagem: '<circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.2M12 18.3v2.2M20.5 12h-2.2M5.7 12H3.5M18 6l-1.6 1.6M7.6 16.4 6 18M18 18l-1.6-1.6M7.6 7.6 6 6"/>',
+  camera: '<rect x="3.5" y="6.5" width="17" height="13" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M9 6.5 10.5 4h3L15 6.5"/>',
+  historico: '<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4 4.5v3.5h3.5"/><path d="M12 8v4.5l3 1.5"/>',
+  livro: '<path d="M4.5 5.5c2.5-1 5-1 7.5.5v14c-2.5-1.5-5-1.5-7.5-.5zM19.5 5.5c-2.5-1-5-1-7.5.5v14c2.5-1.5 5-1.5 7.5-.5z"/>',
+  megafone: '<path d="M4 10v4h3l7 4.5v-13L7 10z"/><path d="M17.5 9.5a3.5 3.5 0 0 1 0 5"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  globo: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.5 3.5 5.5 3.5 8.5s-1 6-3.5 8.5c-2.5-2.5-3.5-5.5-3.5-8.5s1-6 3.5-8.5z"/>',
+  grupo: '<circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3.5 19c.5-3 2.8-4.5 5.5-4.5s5 1.5 5.5 4.5M15 15c2.5 0 4.5 1 5 3.5"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  alerta: '<path d="M12 4 3 19.5h18z"/><path d="M12 10v4M12 17v.5"/>',
+  atualizar: '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M20 4.5V8h-3.5"/>',
+  escola: '<path d="M2.5 9.5 12 5l9.5 4.5L12 14z"/><path d="M6.5 11.5v4.5c3 2.5 8 2.5 11 0v-4.5M21.5 9.5v5"/>',
+  quadro: '<rect x="3.5" y="4.5" width="17" height="12" rx="2"/><path d="M8 20.5l4-4 4 4M7.5 9h6M7.5 12h4"/>',
+  semConexao: '<path d="M4 4l16 16"/><path d="M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4-2.4M19 13a10 10 0 0 0-2.5-1.8M2 9.5a14 14 0 0 1 4.5-2.8M22 9.5A14 14 0 0 0 11 6"/><circle cx="12" cy="19.5" r=".5"/>',
+  cadeado: '<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
+  celular: '<rect x="6.5" y="3" width="11" height="18" rx="2.5"/><path d="M10.5 18h3"/>',
+  dinheiro: '<rect x="3" y="6.5" width="18" height="11" rx="2.5"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5v.5M17.5 14v.5"/>',
+  pessoa: '<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.5 3.6-5.5 7-5.5s6.2 2 7 5.5"/>',
+  abrir: '<path d="M14 4.5h5.5V10M19.5 4.5 11 13"/><path d="M17.5 13.5v5A1.5 1.5 0 0 1 16 20H6a1.5 1.5 0 0 1-1.5-1.5v-10A1.5 1.5 0 0 1 6 7h5"/>',
+  info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.5v.5"/>',
+};
+
+export function icone(nome, rotulo) {
+  const aria = rotulo ? `role="img" aria-label="${rotulo}"` : 'aria-hidden="true"';
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" ${aria}>${P[nome] ?? ''}</svg>`;
+}

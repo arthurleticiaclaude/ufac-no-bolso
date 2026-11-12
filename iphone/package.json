@@ -1,0 +1,16 @@
+{
+  "name": "ufac-plus-ios-pwa",
+  "private": true,
+  "type": "module",
+  "workspaces": ["web", "worker"],
+  "scripts": {
+    "test": "npm test -w web && npm test -w worker",
+    "dev:web": "npm run dev -w web",
+    "dev:worker": "npm run dev -w worker",
+    "build": "npm run build -w web",
+    "e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.0"
+  }
+}

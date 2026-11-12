@@ -1,0 +1,31 @@
+# UFAC+ iPhone: repasse para a Ufac e notificações. Sem armazenamento de dados pessoais e sem logs.
+name = "ufac-plus-ios"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+# Sem logs nem traces guardados na Cloudflare.
+[observability]
+enabled = false
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+# Só a inscrição de push e os horários (ver src/agenda.js).
+# Crie com: npx wrangler kv namespace create INSCRICOES  e cole o id abaixo.
+[[kv_namespaces]]
+binding = "INSCRICOES"
+id = "54ea6fe743e245518af4a90b98acec1b"
+
+[vars]
+# Endereços do PWA que podem usar o Worker. "*.dominio" aceita as prévias das branches.
+ORIGENS = "https://ufac-plus-ios.pages.dev,*.ufac-plus-ios.pages.dev,http://localhost:5173,http://localhost:4173"
+VAPID_ASSUNTO = "https://ufac-plus-ios.pages.dev"
+# ID do cliente OAuth "Aplicativo da Web" do Classroom (projeto ufac-plus-iphone). Não é segredo.
+GOOGLE_CLIENT_ID = "335109047542-3u84roj234m86f4vjnsl0vat6g1tg9e7.apps.googleusercontent.com"
+
+# Segredos (nunca no git), com: npx wrangler secret put NOME
+#   SESSAO_CHAVE   chave AES que cifra os cookies da Ufac
+#   VAPID_PUBLICA  chave pública do push
+#   VAPID_PRIVADA  chave privada do push
+#   GOOGLE_CLIENT_SECRET  segredo do cliente OAuth do Classroom (o ID fica em [vars])
+# Para desenvolver, o script scripts/gerar-chaves.mjs cria o arquivo .dev.vars.

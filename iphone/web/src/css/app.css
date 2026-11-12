@@ -1,0 +1,1015 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--fonte);
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.oculto-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Estrutura ---------- */
+
+/* --inset-baixo: quanto da barrinha de início fica DENTRO da área do app. No iOS 26 instalado, às vezes
+   a área do app termina acima da barrinha (main.js mede a diferença em --falta); aí não se reserva o espaço
+   de novo, senão a barra de abas flutua alta e o fim da página some. Fora desse caso é o env() normal. */
+:root {
+  --inset-baixo: max(0px, calc(env(safe-area-inset-bottom) - var(--falta, 0px)));
+}
+#app {
+  position: fixed;
+  inset: 0;
+}
+
+.tela {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding: calc(env(safe-area-inset-top) + 12px) max(var(--margem), env(safe-area-inset-right)) calc(var(--inset-baixo) + 112px)
+    max(var(--margem), env(safe-area-inset-left));
+}
+
+.tela.sem-abas {
+  padding-bottom: calc(var(--inset-baixo) + 32px);
+}
+
+.pilha {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.linha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cresce {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Barra compacta que aparece ao rolar (como o título grande do iOS). */
+.barra-topo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: calc(env(safe-area-inset-top) + 8px) 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 22px 22px;
+  font-weight: 700;
+  font-size: 16px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 220ms var(--suave), transform 300ms var(--mola);
+  pointer-events: none;
+}
+.barra-topo.visivel {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 8px 2px 6px;
+}
+.cabecalho .sobre {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.cabecalho h1 {
+  margin: 0;
+  font-family: var(--fonte-titulo);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  line-height: 1.1;
+}
+.cabecalho .sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.botao-redondo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.botao-redondo svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ---------- Cartões ---------- */
+
+.cartao {
+  padding: 16px;
+}
+.cartao h2 {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.cartao .rotulo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.tingido .rotulo,
+.tingido .apoio {
+  color: var(--on-primary-muted);
+}
+
+.apoio {
+  font-size: 13px;
+  color: var(--muted);
+}
+.forte {
+  font-weight: 700;
+}
+
+.grade3 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 0.8fr) minmax(0, 1.15fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+.grade3 > div {
+  padding: 10px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--chrome) 70%, transparent);
+}
+.grade3 .valor {
+  font-weight: 700;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  corner-shape: squircle;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--nav-active);
+  background: var(--nav-active-bg);
+  overflow: hidden;
+  flex: none;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.saldo {
+  font-family: var(--fonte-titulo);
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  margin: 2px 0 2px;
+}
+
+/* ---------- Botões ---------- */
+
+.botao {
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: var(--raio-botao);
+  corner-shape: squircle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  background: var(--primary);
+  color: #fff;
+}
+.botao svg {
+  width: 20px;
+  height: 20px;
+}
+.botao.largo {
+  width: 100%;
+}
+.botao.acento {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 40%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.botao.contorno {
+  background: transparent;
+  color: inherit;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+.botao.claro {
+  background: var(--nav-active-bg);
+  color: var(--nav-active);
+}
+.botao.perigo {
+  background: transparent;
+  color: var(--danger);
+  box-shadow: inset 0 0 0 1.5px var(--danger);
+}
+.botao[disabled] {
+  opacity: 0.55;
+}
+.par-botoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ---------- Selos ---------- */
+
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  white-space: nowrap;
+}
+.selo svg {
+  width: 14px;
+  height: 14px;
+}
+.selo.verde {
+  background: var(--green-bg);
+  color: var(--green);
+}
+.selo.perigo {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.selo.neutro {
+  background: var(--chrome);
+  color: var(--muted);
+}
+
+/* ---------- Listas ---------- */
+
+.lista {
+  padding: 4px 0;
+}
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 16px;
+  position: relative;
+  width: 100%;
+  text-align: left;
+}
+.item + .item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 64px;
+  right: 0;
+  height: 0.5px;
+  background: var(--border);
+}
+.item .icone {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  corner-shape: squircle;
+  display: grid;
+  place-items: center;
+  flex: none;
+  background: var(--nav-active-bg);
+  color: var(--nav-active);
+}
+.item .icone svg {
+  width: 20px;
+  height: 20px;
+}
+.item .icone.verde {
+  background: var(--green-bg);
+  color: var(--green);
+}
+.item .icone.perigo {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.item .titulo {
+  font-weight: 600;
+}
+.item .seta {
+  color: var(--muted);
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- Abas (barra inferior flutuante) ---------- */
+
+.abas {
+  position: fixed;
+  z-index: 30;
+  left: max(14px, env(safe-area-inset-left));
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(12px, calc(var(--inset-baixo) + 4px));
+  height: 66px;
+  border-radius: 999px;
+  display: grid;
+  grid-template-columns: repeat(var(--n, 5), 1fr);
+  padding: 6px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.aba {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--muted);
+  border-radius: 999px;
+  transition: color 200ms var(--suave);
+}
+.aba svg {
+  width: 24px;
+  height: 24px;
+}
+.aba[aria-current='page'] {
+  color: var(--nav-active);
+}
+/* A "lente" que desliza para a aba ativa. */
+.abas .lente {
+  position: absolute;
+  z-index: 1;
+  top: 6px;
+  bottom: 6px;
+  left: 6px;
+  width: calc((100% - 12px) / var(--n, 5));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--nav-active-bg) 85%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 2px 10px rgba(0, 0, 0, 0.06);
+  transform: translateX(calc(100% * var(--i, 0)));
+  transition: transform 420ms var(--mola);
+}
+
+/* ---------- Controle segmentado ---------- */
+
+.segmentos {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n, 3), 1fr);
+  padding: 3px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--chrome) 80%, transparent);
+  margin-bottom: 12px;
+}
+.segmentos button {
+  position: relative;
+  z-index: 2;
+  padding: 8px 4px;
+  font-weight: 600;
+  font-size: 13.5px;
+  border-radius: 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+}
+.segmentos button small {
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--muted);
+}
+.segmentos .polegar {
+  position: absolute;
+  z-index: 1;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / var(--n, 3));
+  border-radius: 11px;
+  background: var(--polegar, var(--surface));
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.04);
+  transform: translateX(calc(100% * var(--i, 0)));
+  transition: transform 380ms var(--mola);
+}
+
+/* ---------- Interruptor (iOS) ---------- */
+
+.interruptor {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 51px;
+  height: 31px;
+  border-radius: 999px;
+  background: var(--chrome);
+  position: relative;
+  flex: none;
+  transition: background 250ms var(--suave);
+  margin: 0;
+}
+.interruptor::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.16);
+  transition: transform 320ms var(--mola);
+}
+.interruptor:checked {
+  background: #34c759;
+}
+.interruptor:checked::after {
+  transform: translateX(20px);
+}
+
+/* ---------- Esqueleto e vazio ---------- */
+
+.esqueleto {
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--chrome) 0%, color-mix(in srgb, var(--chrome) 40%, var(--surface)) 50%, var(--chrome) 100%);
+  background-size: 200% 100%;
+  animation: brilho 1.3s ease-in-out infinite;
+}
+@keyframes brilho {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.vazio {
+  text-align: center;
+  padding: 18px 8px;
+  color: var(--muted);
+}
+.vazio svg {
+  width: 34px;
+  height: 34px;
+  color: var(--nav-active);
+  margin-bottom: 6px;
+}
+.vazio .titulo {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---------- Faixas de aviso ---------- */
+
+.faixa {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--chip-bg);
+  color: var(--chip-text);
+}
+.faixa svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  margin-top: 1px;
+}
+.faixa .titulo {
+  font-weight: 700;
+}
+.faixa.perigo {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.faixa.verde {
+  background: var(--green-bg);
+  color: var(--green);
+}
+.faixa .acao {
+  margin-left: auto;
+  font-weight: 700;
+  text-decoration: underline;
+  white-space: nowrap;
+  align-self: center;
+}
+
+/* ---------- Folha (sheet) ---------- */
+
+.veu {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.32);
+  opacity: 0;
+  transition: opacity 260ms var(--suave);
+}
+.veu.aberto {
+  opacity: 1;
+}
+.folha {
+  position: fixed;
+  z-index: 51;
+  left: 8px;
+  right: 8px;
+  bottom: max(8px, var(--inset-baixo));
+  max-height: calc(100% - env(safe-area-inset-top) - 40px);
+  overflow-y: auto;
+  border-radius: 34px;
+  padding: 10px 18px 20px;
+  transform: translateY(110%);
+  transition: transform 460ms var(--mola);
+  max-width: 600px;
+  margin: 0 auto;
+}
+.folha.aberta {
+  transform: none;
+}
+.folha .alca {
+  width: 38px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--muted);
+  opacity: 0.4;
+  margin: 0 auto 10px;
+}
+
+/* ---------- Formulário ---------- */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.campo label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.campo input {
+  height: 52px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  padding: 0 14px;
+  font-size: 17px;
+  outline: none;
+}
+.campo input:focus {
+  border-color: var(--nav-active);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--nav-active) 18%, transparent);
+}
+
+/* ---------- Linha do tempo (Horários) ---------- */
+
+.dia {
+  padding: 14px 16px;
+}
+.dia.hoje {
+  box-shadow: var(--glass-shadow), inset 0 0 0 2px var(--nav-active);
+}
+.dia .nome {
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.aula {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+}
+.aula .hora {
+  width: 58px;
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--nav-active);
+  font-size: 14px;
+}
+.aula .hora small {
+  display: block;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ---------- Notas ---------- */
+
+.tabela-notas {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  margin-top: 8px;
+}
+.tabela-notas td {
+  padding: 6px 0;
+  border-top: 0.5px solid var(--border);
+}
+.tabela-notas td:last-child {
+  text-align: right;
+  font-weight: 700;
+}
+.barra-faltas {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--chrome);
+  overflow: hidden;
+  margin-top: 6px;
+}
+.barra-faltas > div {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--green);
+  transition: width 500ms var(--suave);
+}
+.barra-faltas.atencao > div {
+  background: var(--accent);
+}
+.barra-faltas.limite > div {
+  background: var(--danger);
+}
+
+/* ---------- QR ---------- */
+
+.qr-tela {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(env(safe-area-inset-top) + 12px) 24px calc(var(--inset-baixo) + 24px);
+  overflow-y: auto;
+}
+.qr-cartao {
+  background: #fff;
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  width: min(320px, 86vw);
+}
+.qr-cartao svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.qr-cartao .numero {
+  text-align: center;
+  color: #0e1726;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-top: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Boas-vindas ---------- */
+
+.boas-vindas {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  justify-content: center;
+}
+.marca {
+  width: 92px;
+  height: 92px;
+  border-radius: 24px;
+  corner-shape: squircle;
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--primary) 40%, transparent);
+}
+.titulo-app {
+  font-family: var(--fonte-titulo);
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 0;
+}
+
+/* ---------- Transições ---------- */
+
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+}
+.entra > * {
+  animation: entrar 380ms var(--suave) both;
+}
+.entra > *:nth-child(2) {
+  animation-delay: 40ms;
+}
+.entra > *:nth-child(3) {
+  animation-delay: 80ms;
+}
+.entra > *:nth-child(4) {
+  animation-delay: 120ms;
+}
+.entra > *:nth-child(n + 5) {
+  animation-delay: 160ms;
+}
+
+
+.puxar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(env(safe-area-inset-top) + 4px);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+}
+.puxar .roda {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.puxar svg {
+  width: 18px;
+  height: 18px;
+}
+.puxar.girando svg {
+  animation: girar 0.8s linear infinite;
+}
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.aviso-toast {
+  position: fixed;
+  z-index: 70;
+  left: 16px;
+  right: 16px;
+  top: calc(env(safe-area-inset-top) + 10px);
+  padding: 12px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-align: center;
+  transform: translateY(-140%);
+  transition: transform 420ms var(--mola);
+  max-width: 520px;
+  margin: 0 auto;
+}
+.aviso-toast.visivel {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+@media (min-width: 700px) {
+  .tela > .pilha {
+    max-width: 620px;
+    margin: 0 auto;
+  }
+}
+
+/* Ícones soltos dentro de linhas e cartões. */
+.linha > svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  color: var(--nav-active);
+}
+.boas-vindas .cartao .linha {
+  align-items: flex-start;
+}
+
+/* ---------- Login em etapas (Portal e eTICKET têm senhas diferentes) ---------- */
+
+.etapas {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.etapas li {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: var(--chrome);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 260ms var(--suave), color 260ms var(--suave);
+}
+.etapas .num {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--text);
+  font-weight: 800;
+}
+.etapas .num svg {
+  width: 16px;
+  height: 16px;
+}
+.etapas li.atual {
+  background: var(--nav-active-bg);
+  color: var(--nav-active);
+}
+.etapas li.atual .num {
+  background: var(--primary);
+  color: #fff;
+}
+.etapas li.feita {
+  background: var(--green-bg);
+  color: var(--green);
+}
+.etapas li.feita .num {
+  background: var(--green);
+  color: var(--green-bg);
+}
+
+.etapa-login {
+  --cor-sistema: var(--nav-active);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px;
+  box-shadow: var(--glass-shadow), inset 0 3px 0 0 var(--cor-sistema);
+  animation: etapa-entra 280ms var(--suave);
+}
+.etapa-login[data-sistema='eticket'] {
+  --cor-sistema: var(--accent);
+}
+.etapa-topo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.etapa-topo h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.etapa-icone {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border-radius: 16px;
+  background: var(--cor-sistema);
+  color: #fff;
+}
+.etapa-login[data-sistema='eticket'] .etapa-icone {
+  color: var(--on-accent);
+}
+.etapa-icone svg {
+  width: 28px;
+  height: 28px;
+}
+.etapa-site {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--cor-sistema);
+}
+.etapa-login[data-sistema='eticket'] .etapa-site {
+  color: var(--chip-text);
+}
+@keyframes etapa-entra {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+/* Usuário que o Chaves do iCloud salva: visível como selo, mas sem foco nem toque. */
+.conta-chaves {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+.campo[hidden] {
+  display: none;
+}
+.conta-chaves[data-vazio] {
+  opacity: 0.55;
+}
+.selo-conta {
+  width: 100%;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--chrome);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  pointer-events: none;
+  outline: none;
+}

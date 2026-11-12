@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Privacidade do UFAC+ no iPhone</title>
+  <meta name="description" content="O que o UFAC+ para iPhone guarda, o que passa pelo repassador e como as notificações funcionam.">
+  <link rel="icon" href="/icones/icone-192.png">
+  <style>
+    :root { color-scheme: light dark; --bg: #f3f5f9; --surface: #fff; --text: #0e1726; --muted: #536074; --border: #e3e8f0; --primary: #0b4fa8; --green: #1f7a44; --green-bg: #e1f4e8; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #000000; --surface: #1c1c1e; --text: #ffffff; --muted: #98989f; --border: #2c2c2e; --primary: #0a84ff; --green: #30d158; --green-bg: #0f2a17; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    main { max-width: 680px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 28px) max(20px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 40px) max(20px, env(safe-area-inset-left)); }
+    h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.15; margin: 0 0 4px; }
+    h2 { font-size: 19px; margin: 0 0 6px; }
+    .sub { color: var(--muted); margin-bottom: 18px; }
+    section { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 18px; margin-top: 14px; }
+    section p { margin: 6px 0; }
+    ul { margin: 6px 0; padding-left: 20px; }
+    li { margin: 3px 0; }
+    .resumo { background: var(--green-bg); color: var(--green); border: 0; }
+    .resumo li { color: var(--text); }
+    a { color: var(--primary); }
+    footer { color: var(--muted); font-size: 13px; text-align: center; margin-top: 24px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Privacidade do UFAC+ no iPhone</h1>
+  <div class="sub">Versão para iPhone (app da web). Atualizada em 12 de novembro de 2026.</div>
+
+  <section class="resumo">
+    <h2>Em resumo</h2>
+    <ul>
+      <li>Sua senha não é guardada em lugar nenhum pelo UFAC+.</li>
+      <li>Seus dados acadêmicos e do RU ficam salvos só no seu iPhone.</li>
+      <li>Um repassador na internet leva os pedidos até a Ufac, porque o Safari não deixa o app ler os sites da Ufac direto. Ele não guarda nem registra o que passa.</li>
+      <li>Para as notificações, o repassador guarda só o endereço de entrega do aviso e os horários, sem nomes de disciplinas, notas ou cardápio.</li>
+      <li>Sem anúncios, sem métricas de uso, sem venda de dados.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Quem faz o app</h2>
+    <p>O UFAC+ é um app independente, feito por um aluno da Ufac para uso próprio e de colegas. <strong>Não é um aplicativo oficial da Ufac</strong> e não tem ligação com o NTI, a Proaes ou o Restaurante Universitário.</p>
+  </section>
+
+  <section>
+    <h2>O que fica salvo no seu iPhone</h2>
+    <p>Para abrir rápido e funcionar sem internet, o app guarda no armazenamento do próprio navegador, só neste iPhone:</p>
+    <ul>
+      <li>nome, curso, período, semestre e matrícula;</li>
+      <li>horários, notas e faltas do semestre atual;</li>
+      <li>saldo do RU, o número do QR de entrada (igual à matrícula), cardápio e histórico do eTICKET;</li>
+      <li>no perfil de professor: turmas, horários e situação das chamadas (sem nomes de alunos);</li>
+      <li>atividades do Classroom, se você conectar;</li>
+      <li>a foto de perfil que você escolher e suas preferências;</li>
+      <li>a sessão da Ufac, <strong>cifrada</strong>: só o repassador consegue abri-la, e ele não guarda a chave junto com ela.</li>
+    </ul>
+    <p>Tudo isso é apagado ao tocar em <strong>Sair da conta</strong>. Apagar o app da Tela de Início ou limpar os dados de sites no Safari também remove.</p>
+  </section>
+
+  <section>
+    <h2>O repassador (Cloudflare Worker)</h2>
+    <p>O Safari bloqueia a leitura das páginas da Ufac por outro site (regra de segurança chamada CORS). Por isso o app usa um pequeno programa na Cloudflare que apenas repassa os pedidos para <code>portal.ufac.br</code> e <code>sistemas.ufac.br/eticket</code> e devolve as respostas.</p>
+    <ul>
+      <li><strong>CPF e senha</strong> passam por ele só no momento do login, em conexão cifrada (HTTPS), e seguem direto para a Ufac. Não são gravados nem registrados.</li>
+      <li><strong>As páginas da Ufac</strong> (notas, horários, saldo, PDFs) passam por ele e chegam ao seu iPhone. Nada é copiado ou guardado no caminho.</li>
+      <li><strong>Os cookies de sessão da Ufac</strong> voltam ao iPhone cifrados (AES-256-GCM). O repassador decifra a cada pedido, usa e esquece.</li>
+      <li>Os registros (logs) do repassador ficam <strong>desligados</strong>. Ele só aceita pedidos vindos do próprio app e só fala com os sites da Ufac.</li>
+      <li>Como o repassador roda na infraestrutura da Cloudflare, ela trata dados técnicos da conexão (como o endereço IP) segundo a <a href="https://www.cloudflare.com/pt-br/privacypolicy/" rel="noopener">política dela</a>.</li>
+    </ul>
+    <p>O código do repassador fica na pasta <code>ios-pwa/worker</code> do projeto, para quem quiser conferir que ele faz só isso.</p>
+  </section>
+
+  <section>
+    <h2>Notificações</h2>
+    <p>Apps da web não têm Live Activities. No lugar delas, o UFAC+ manda notificações que você liga em Configurações › Notificações: próxima aula, refeição do RU e atividades do Classroom.</p>
+    <ul>
+      <li>Para isso, o repassador guarda: o endereço de entrega criado pelo iPhone para o serviço de notificações da Apple, as chaves públicas dessa entrega e os <strong>horários</strong> dos avisos (dia da semana e hora, tipo do aviso e uma referência curta, como “1-1140” ou “almoco”).</li>
+      <li>Ele <strong>não</strong> guarda nome de disciplina, nota, cardápio, matrícula ou título de atividade. A notificação chega só com o tipo e a referência, e é o seu iPhone que escreve o texto com os dados que já tem.</li>
+      <li>A entrega é feita pelo serviço de notificações da Apple.</li>
+      <li>Ao desligar todos os avisos ou sair da conta, a inscrição é apagada. Sem uso, ela some sozinha em 60 dias.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Google Classroom (opcional)</h2>
+    <ul>
+      <li>Ao conectar, você entra na tela oficial do Google e autoriza só <strong>leitura</strong> das suas turmas e das suas atividades e prazos.</li>
+      <li>As turmas e atividades vão do Google <strong>direto</strong> para o seu iPhone, sem passar pelo repassador.</li>
+      <li>Você autoriza uma vez. Para não pedir login do Google toda hora, o repassador troca essa autorização com o Google e a devolve <strong>cifrada</strong>: ela fica só no seu iPhone, e o repassador não guarda nem registra nada.</li>
+      <li>O app não entrega, altera ou apaga nada no Classroom. Para tirar o acesso: Configurações › Desconectar o Classroom (ou em myaccount.google.com › Segurança › Apps de terceiros). Sair da conta também desconecta.</li>
+      <li>O uso da conta Google segue a <a href="https://policies.google.com/privacy?hl=pt-BR" rel="noopener">política do Google</a>.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>O que o app nunca faz</h2>
+    <ul>
+      <li>Não guarda sua senha (quem pode guardar é o Chaves do iCloud, no seu iPhone, se você quiser).</li>
+      <li>Não envia CPF, matrícula, número do QR, notas ou cookies para terceiros.</li>
+      <li>Não faz pagamentos: a recarga do RU abre o site oficial do eTICKET no Safari.</li>
+      <li>Não lança notas nem chamadas: no perfil de professor, isso abre o site oficial.</li>
+      <li>Não usa anúncios nem ferramentas de métricas.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Seus direitos (LGPD)</h2>
+    <p>Como quase tudo fica no seu iPhone, você controla os dados: <strong>Sair da conta</strong> apaga tudo do aparelho e a inscrição de notificações no repassador. Para dúvidas, use <strong>Relatar um problema</strong>, em Configurações.</p>
+  </section>
+
+  <footer>App independente, feito por um aluno. Não é um aplicativo oficial da Ufac.<br><a href="/">Voltar ao UFAC+</a></footer>
+</main>
+</body>
+</html>

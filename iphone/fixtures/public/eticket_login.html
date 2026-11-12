@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="/static/eticket/global/css/bootstrap.min.css">
+<script src="/static/eticket/global/js/bootstrap.min.js"></script>
+<script src="/static/eticket/global/js/bootstrap.bundle.min.js"></script>
+
+<script src="global/js/jquery.inputmask.min.js" integrity="sha512-F5Ul1uuyFlGnIT1dk2c4kB4DBdi5wnBJjVhL7gQlGh46Xn0VhvD8kgxLtjdZ5YN83gybk/aASUAlpdoWUjRR3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="/static/eticket/global/fa/css/all.min.css">
+<script src="/static/eticket/global/fa/js/all.min.js"></script>
+
+<link rel="stylesheet" href="/static/eticket/global/css/global-style.css">
+<link rel="stylesheet" href="/static/eticket/ETicketApp/css/userStyle.css">
+        <title>Login |E-ticket</title>
+    </head>
+    
+
+    <body>
+        <main class="main-content-container">
+            
+
+<body class='login'>
+    <div class="login-container">
+        <div class="login-box">
+            <img src="/static/eticket/ETicketApp/img/ETICKET.png" alt="Logo" class="login-logo"><br>
+            <a href="https://sistemas.ufac.br/home/servicos/idufac/" target="_blank">Utilize sua credencial do ID Ufac para logar</a>
+            <form id="login-form" method="POST" action="/eticket/login/">
+                <input type="hidden" name="csrfmiddlewaretoken" value="TOKEN_FALSO">
+                <div class="input-group">
+                    <label for="id_cpf">CPF:</label>
+                    <input type="text" name="cpf" placeholder="000.000.000-00" oninput="this.value = this.value.replace(/\D/g, &#x27;&#x27;).replace(/(\d{3})(\d)/, &#x27;$1.$2&#x27;).replace(/(\d{3})(\d)/, &#x27;$1.$2&#x27;).replace(/(\d{3})(\d{1,2})$/, &#x27;$1-$2&#x27;)" maxlength="14" required id="id_cpf">
+                </div>
+                <div class="input-group">
+                    <label for="id_password">Senha:</label>
+                    <input type="password" name="password" required id="id_password">
+                </div>
+                <button type="submit" class="login-button">Logar</button>
+                <a type="submit" href="/eticket/menuExterno/" class="externo" >Cardápio do dia</a>
+            </form>
+        </div>
+    </div>
+
+
+</body>
+
+        </main>
+        
+    </body>
+
+</html>

@@ -1,0 +1,4 @@
+# O site (index.html e privacidade.html) é publicado pelo GitHub Pages a partir da raiz.
+# O código-fonte do iPhone fica fora do site.
+exclude:
+  - iphone

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Instalar o UFAC+ no iPhone</title>
+  <meta name="description" content="Três passos para instalar o UFAC+ na Tela de Início do iPhone.">
+  <link rel="apple-touch-icon" href="/icones/icone-180.png">
+  <link rel="icon" href="/icones/icone-192.png">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f3f5f9; --surface: #fff; --text: #0e1726; --muted: #536074; --border: #e3e8f0;
+      --primary: #0b4fa8; --accent: #f2a516; --chip: #fff1d6; --chip-text: #7a4a00;
+      --phone: #1b2333; --screen: #eef2f8;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #000000; --surface: #1c1c1e; --text: #ffffff; --muted: #98989f; --border: #2c2c2e; --primary: #0a84ff; --chip: #3a2a0a; --chip-text: #f8c76a; --phone: #2c2c2e; --screen: #1c1c1e; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    main { max-width: 640px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 28px) max(20px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 40px) max(20px, env(safe-area-inset-left)); }
+    header { display: flex; gap: 16px; align-items: center; margin-bottom: 8px; }
+    header img { width: 64px; height: 64px; border-radius: 16px; }
+    h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.15; }
+    .sub { color: var(--muted); }
+    .passo { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 18px; margin-top: 16px; display: grid; grid-template-columns: 1fr 120px; gap: 14px; align-items: center; }
+    .passo h2 { margin: 0 0 4px; font-size: 18px; }
+    .num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: #fff; font-weight: 800; font-size: 14px; margin-bottom: 8px; }
+    @media (prefers-color-scheme: dark) { .num { color: #000000; } }
+    .passo p { margin: 0; color: var(--muted); }
+    .passo svg { width: 120px; height: auto; display: block; }
+    .aviso { background: var(--chip); color: var(--chip-text); border-radius: 18px; padding: 14px 16px; margin-top: 16px; }
+    .aviso strong { display: block; }
+    .botao { display: block; text-align: center; background: var(--primary); color: #fff; border-radius: 16px; padding: 14px; font-weight: 700; text-decoration: none; margin-top: 20px; }
+    @media (prefers-color-scheme: dark) { .botao { color: #000000; } }
+    footer { color: var(--muted); font-size: 13px; text-align: center; margin-top: 24px; }
+    footer a { color: inherit; }
+    @media (max-width: 380px) { .passo { grid-template-columns: 1fr; } .passo svg { margin: 0 auto; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="/icones/icone-180.png" alt="" width="64" height="64">
+    <div>
+      <h1>Instale o UFAC+ no iPhone</h1>
+      <div class="sub">Três passos, de graça e sem App Store.</div>
+    </div>
+  </header>
+
+  <div class="aviso"><strong>Use o Safari.</strong> Abra este endereço no Safari do iPhone (iOS 16.4 ou mais novo). No Chrome, procure a mesma opção no botão de compartilhar.</div>
+
+  <section class="passo">
+    <div>
+      <span class="num">1</span>
+      <h2>Toque em Compartilhar</h2>
+      <p>É o quadrado com a seta para cima, na barra do Safari (embaixo ou no menu <strong>···</strong>).</p>
+    </div>
+    <svg viewBox="0 0 120 200" aria-hidden="true">
+      <rect x="6" y="4" width="108" height="192" rx="22" fill="var(--phone)"/>
+      <rect x="12" y="10" width="96" height="180" rx="17" fill="var(--screen)"/>
+      <rect x="22" y="30" width="76" height="10" rx="5" fill="var(--border)"/>
+      <rect x="22" y="48" width="56" height="8" rx="4" fill="var(--border)"/>
+      <rect x="22" y="62" width="66" height="8" rx="4" fill="var(--border)"/>
+      <rect x="18" y="154" width="84" height="28" rx="14" fill="var(--surface)" stroke="var(--border)"/>
+      <circle cx="60" cy="168" r="11" fill="var(--accent)" opacity=".35"/>
+      <path d="M60 172v-11M56 164.5l4-3.5 4 3.5M55.5 166h-1.5v7.5h12V166h-1.5" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </section>
+
+  <section class="passo">
+    <div>
+      <span class="num">2</span>
+      <h2>Adicionar à Tela de Início</h2>
+      <p>Role a lista de opções para baixo e toque em <strong>Adicionar à Tela de Início</strong>.</p>
+    </div>
+    <svg viewBox="0 0 120 200" aria-hidden="true">
+      <rect x="6" y="4" width="108" height="192" rx="22" fill="var(--phone)"/>
+      <rect x="12" y="10" width="96" height="180" rx="17" fill="var(--screen)"/>
+      <rect x="12" y="78" width="96" height="112" rx="17" fill="var(--surface)"/>
+      <rect x="22" y="92" width="60" height="7" rx="3.5" fill="var(--border)"/>
+      <rect x="22" y="110" width="50" height="7" rx="3.5" fill="var(--border)"/>
+      <rect x="18" y="124" width="84" height="22" rx="8" fill="var(--accent)" opacity=".3"/>
+      <rect x="24" y="130" width="10" height="10" rx="2.5" fill="none" stroke="var(--primary)" stroke-width="1.6"/>
+      <path d="M29 132.5v5M26.5 135h5" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round"/>
+      <rect x="40" y="132" width="54" height="6" rx="3" fill="var(--primary)" opacity=".7"/>
+      <rect x="22" y="156" width="56" height="7" rx="3.5" fill="var(--border)"/>
+    </svg>
+  </section>
+
+  <section class="passo">
+    <div>
+      <span class="num">3</span>
+      <h2>Confirme “Abrir como App”</h2>
+      <p>Deixe <strong>Abrir como App</strong> ligado e toque em <strong>Adicionar</strong>. O ícone do UFAC+ aparece na Tela de Início.</p>
+    </div>
+    <svg viewBox="0 0 120 200" aria-hidden="true">
+      <rect x="6" y="4" width="108" height="192" rx="22" fill="var(--phone)"/>
+      <rect x="12" y="10" width="96" height="180" rx="17" fill="var(--screen)"/>
+      <rect x="24" y="34" width="20" height="20" rx="5" fill="var(--border)"/>
+      <rect x="50" y="34" width="20" height="20" rx="5" fill="var(--border)"/>
+      <rect x="76" y="34" width="20" height="20" rx="5" fill="var(--border)"/>
+      <rect x="24" y="64" width="20" height="20" rx="5" fill="var(--border)"/>
+      <image href="/icones/icone-180.png" x="50" y="64" width="20" height="20" clip-path="inset(0 round 5px)"/>
+      <circle cx="60" cy="74" r="15" fill="none" stroke="var(--accent)" stroke-width="2"/>
+      <rect x="76" y="64" width="20" height="20" rx="5" fill="var(--border)"/>
+      <rect x="22" y="140" width="76" height="22" rx="11" fill="var(--surface)" stroke="var(--border)"/>
+      <rect x="30" y="148" width="34" height="6" rx="3" fill="var(--border)"/>
+      <rect x="72" y="145" width="20" height="12" rx="6" fill="#34c759"/>
+      <circle cx="86" cy="151" r="4.5" fill="#fff"/>
+    </svg>
+  </section>
+
+  <div class="aviso"><strong>Depois de instalar</strong>Abra pelo ícone da Tela de Início (não pelo Safari). Só assim o iPhone libera as notificações das aulas, do RU e do Classroom, em Configurações › Notificações dentro do app.</div>
+
+  <a class="botao" href="/">Abrir o UFAC+</a>
+
+  <footer>
+    App independente, feito por um aluno. Não é um aplicativo oficial da Ufac.<br>
+    <a href="/privacidade/">Política de privacidade</a>
+  </footer>
+</main>
+</body>
+</html>

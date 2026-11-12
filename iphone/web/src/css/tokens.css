@@ -1,0 +1,133 @@
+/* Tokens do CLAUDE.md (seção 6), iguais ao app Android. Aluno = azul, professor = vermelho. */
+:root {
+  color-scheme: light;
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --text: #0e1726;
+  --muted: #536074;
+  --border: #e3e8f0;
+  --chrome: #e6ebf2;
+  --primary: #0b4fa8;
+  --on-primary-muted: #d3e1f7;
+  --accent: #f2a516;
+  --on-accent: #1a1300;
+  --chip-bg: #fff1d6;
+  --chip-text: #7a4a00;
+  --nav-active: #0b4fa8;
+  --nav-active-bg: #e2ecfb;
+  --green: #1f7a44;
+  --green-bg: #e1f4e8;
+  --danger: #b42318;
+  --danger-bg: #fde8e6;
+
+  /* Vidro */
+  --glass-tint: rgba(255, 255, 255, 0.58);
+  --glass-tint-strong: rgba(255, 255, 255, 0.78);
+  --glass-rim: rgba(255, 255, 255, 0.95);
+  --glass-rim-low: rgba(255, 255, 255, 0.25);
+  --glass-shadow: 0 10px 34px rgba(14, 23, 38, 0.1), 0 1px 3px rgba(14, 23, 38, 0.06);
+  --glass-blur: 22px;
+  --blob-1: rgba(11, 79, 168, 0.22);
+  --blob-2: rgba(242, 165, 22, 0.16);
+  --blob-3: rgba(31, 122, 68, 0.1);
+
+  --raio-cartao: 24px;
+  --raio-botao: 16px;
+  --margem: 20px;
+  --mola: cubic-bezier(0.32, 1.25, 0.42, 1);
+  --suave: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --fonte: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro', system-ui, 'Helvetica Neue', sans-serif;
+  --fonte-titulo: -apple-system-headline, -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+}
+
+:root[data-perfil='professor'] {
+  --primary: #b3261e;
+  --on-primary-muted: #f9d6d3;
+  --nav-active: #b3261e;
+  --nav-active-bg: #fce8e6;
+  --danger: #c4320a;
+  --danger-bg: #fff0ea;
+  --blob-1: rgba(179, 38, 30, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    color-scheme: dark;
+    /* Blackout, como o modo escuro do iOS: preto puro (tela OLED apagada) e cinzas do sistema. */
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --text: #ffffff;
+    --muted: #98989f;
+    --border: #2c2c2e;
+    --chrome: #1c1c1e;
+    --primary: #0a4fc4;
+    --on-primary-muted: #d6e4ff;
+    --accent: #ffb32b;
+    --chip-bg: #2e2209;
+    --chip-text: #ffcc66;
+    --nav-active: #0a84ff;
+    --nav-active-bg: #0d1f3a;
+    --green: #30d158;
+    --green-bg: #0f2a17;
+    --danger: #ff453a;
+    --danger-bg: #2c0f0d;
+    --glass-tint: rgba(28, 28, 30, 0.72);
+    --glass-tint-strong: rgba(28, 28, 30, 0.9);
+    --glass-rim: rgba(255, 255, 255, 0.22);
+    --glass-rim-low: rgba(255, 255, 255, 0.05);
+    --glass-shadow: 0 0 #0000;
+    --glass-glow: rgba(255, 255, 255, 0.07);
+    --polegar: #48484a; /* opção marcada nos seletores, como no iOS escuro */
+    --blob-1: transparent;
+    --blob-2: transparent;
+    --blob-3: transparent;
+  }
+  :root[data-perfil='professor']:not([data-tema='claro']) {
+    --primary: #a3201a;
+    --on-primary-muted: #ffd9d5;
+    --nav-active: #ff6961;
+    --nav-active-bg: #2e0f0d;
+    --danger: #ff9f0a;
+    --danger-bg: #2e1a05;
+}
+}
+
+:root[data-tema='escuro'] {
+  color-scheme: dark;
+  /* Blackout, como o modo escuro do iOS: preto puro (tela OLED apagada) e cinzas do sistema. */
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --text: #ffffff;
+  --muted: #98989f;
+  --border: #2c2c2e;
+  --chrome: #1c1c1e;
+  --primary: #0a4fc4;
+  --on-primary-muted: #d6e4ff;
+  --accent: #ffb32b;
+  --chip-bg: #2e2209;
+  --chip-text: #ffcc66;
+  --nav-active: #0a84ff;
+  --nav-active-bg: #0d1f3a;
+  --green: #30d158;
+  --green-bg: #0f2a17;
+  --danger: #ff453a;
+  --danger-bg: #2c0f0d;
+  --glass-tint: rgba(28, 28, 30, 0.72);
+  --glass-tint-strong: rgba(28, 28, 30, 0.9);
+  --glass-rim: rgba(255, 255, 255, 0.22);
+  --glass-rim-low: rgba(255, 255, 255, 0.05);
+  --glass-shadow: 0 0 #0000;
+  --glass-glow: rgba(255, 255, 255, 0.07);
+  --polegar: #48484a; /* opção marcada nos seletores, como no iOS escuro */
+  --blob-1: transparent;
+  --blob-2: transparent;
+  --blob-3: transparent;
+}
+:root[data-tema='escuro'][data-perfil='professor'] {
+  --primary: #a3201a;
+  --on-primary-muted: #ffd9d5;
+  --nav-active: #ff6961;
+  --nav-active-bg: #2e0f0d;
+  --danger: #ff9f0a;
+  --danger-bg: #2e1a05;
+}
