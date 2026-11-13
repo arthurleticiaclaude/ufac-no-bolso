@@ -6,6 +6,12 @@
   <title>Privacidade do UFAC+ no iPhone</title>
   <meta name="description" content="O que o UFAC+ para iPhone guarda, o que passa pelo repassador e como as notificações funcionam.">
   <link rel="icon" href="/icones/icone-192.png">
+  <!-- O manifest faz o "Adicionar à Tela de Início" feito AQUI abrir o app (start_url), não este tutorial. -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="UFAC+">
+  <!-- Atalho antigo, criado antes do manifest, que abre esta página como app: vai direto para o UFAC+. -->
+  <script>if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) location.replace('/#/inicio');</script>
   <style>
     :root { color-scheme: light dark; --bg: #f3f5f9; --surface: #fff; --text: #0e1726; --muted: #536074; --border: #e3e8f0; --primary: #0b4fa8; --green: #1f7a44; --green-bg: #e1f4e8; }
     @media (prefers-color-scheme: dark) { :root { --bg: #000000; --surface: #1c1c1e; --text: #ffffff; --muted: #98989f; --border: #2c2c2e; --primary: #0a84ff; --green: #30d158; --green-bg: #0f2a17; } }

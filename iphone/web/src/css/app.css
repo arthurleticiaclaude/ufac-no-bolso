@@ -207,6 +207,22 @@ input {
   border-radius: 14px;
   background: color-mix(in srgb, var(--chrome) 70%, transparent);
 }
+/* Matrícula: o bloco inteiro é um botão que copia o número. */
+.grade3 > .copiavel {
+  padding: 10px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--chrome) 70%, transparent);
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  min-width: 0;
+}
+.copiavel .rotulo svg {
+  width: 12px;
+  height: 12px;
+  vertical-align: -1px;
+  margin-left: 2px;
+}
 .grade3 .valor {
   font-weight: 700;
   font-size: 15px;

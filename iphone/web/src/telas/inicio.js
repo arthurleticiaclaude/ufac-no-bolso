@@ -14,8 +14,16 @@ import { escolherFoto, expirado, faixaExpirada, faixaFalha, fotoOuIniciais, fras
 import { abrirQr } from './qr.js';
 
 export default async function inicio(tela, { ir, acoes }) {
-  let falha = '';
+  // Uma falha por sistema: a do sistema com sessão vencida dá lugar à faixa "Entrar de novo".
+  let falhas = {};
   let carregando = true;
+
+  async function falhaVisivel() {
+    const vencidos = (await ler('expirados')) ?? [];
+    const sistemaDe = { 'o Portal': 'portal', 'o eTICKET': 'eticket' };
+    const texto = Object.entries(falhas).find(([nome]) => !vencidos.includes(sistemaDe[nome]))?.[1];
+    return texto ? faixaFalha(texto) : '';
+  }
 
   async function desenhar() {
     const agora = new Date();
@@ -37,7 +45,8 @@ export default async function inicio(tela, { ir, acoes }) {
       })}
       ${feriado ? faixa({ icone: 'calendario', titulo: feriado.titulo, texto: feriado.texto }) : ''}
       ${(await expirado('eticket')) ? faixaExpirada('eticket') : ''}
-      ${falha ? faixaFalha(falha) : ''}
+      ${(await expirado('portal')) ? faixaExpirada('portal') : ''}
+      ${await falhaVisivel()}
 
       <section class="cartao vidro" aria-label="Identificação">
         ${ident
@@ -47,7 +56,7 @@ export default async function inicio(tela, { ir, acoes }) {
               <div class="cresce"><div class="forte" style="font-size:17px">${nome}</div><div class="apoio">${ident.curso} · Ufac</div></div>
             </div>
             <div class="grade3">
-              <div><div class="rotulo">Matrícula</div><div class="valor">${ident.matricula}</div></div>
+              <button class="copiavel tocavel" data-acao="copiar-matricula" aria-label="Matrícula ${ident.matricula}. Toque para copiar"><div class="rotulo">Matrícula ${ic('copiar')}</div><div class="valor">${ident.matricula}</div></button>
               <div><div class="rotulo">Período</div><div class="valor">${ident.periodo}º</div></div>
               <div><div class="rotulo">Semestre</div><div class="valor">${semestreCurto(ident.semestre)}</div></div>
             </div>`
@@ -109,7 +118,7 @@ export default async function inicio(tela, { ir, acoes }) {
   await desenhar();
 
   async function atualizar({ forcar = false } = {}) {
-    falha = '';
+    falhas = {};
     const tarefas = [];
     // Ao abrir, só o eTICKET é conferido; o Portal (sessão curta) só quando falta dado.
     if (forcar || !(await recente('ru'))) tarefas.push(['o eTICKET', 'ru', atualizarRu]);
@@ -139,9 +148,10 @@ export default async function inicio(tela, { ir, acoes }) {
     await Promise.all([...porSistema.values()].map(async (fila) => {
       for (const [nome, chave, fn] of fila) {
         try {
-          await fn();
+          // null: a sessão caiu. No Portal, o próximo pedido cairia também; não gasta outro.
+          if ((await fn()) === null && nome === 'o Portal') break;
         } catch (e) {
-          falha ||= fraseDeFalha(e, nome, (await ler(chave))?.lidoEm);
+          falhas[nome] ??= fraseDeFalha(e, nome, (await ler(chave))?.lidoEm);
           if (e instanceof SemConexao) break; // sistema fora do ar: não espera de novo no próximo pedido
         }
       }
@@ -157,6 +167,18 @@ export default async function inicio(tela, { ir, acoes }) {
   acoes.refeicao = () => ir(`ru/${proximaRefeicao(new Date()).id}`);
   acoes['entrar-eticket'] = () => ir('login/eticket');
   acoes['entrar-portal'] = () => ir('login/portal');
+  acoes['copiar-matricula'] = async (el) => {
+    // Lê o número da própria tela, sem esperar o banco: o Safari só deixa copiar dentro do toque.
+    const matricula = el.querySelector('.valor')?.textContent.trim();
+    if (!matricula) return;
+    try {
+      await navigator.clipboard.writeText(matricula);
+      navigator.vibrate?.(10);
+      avisar('Matrícula copiada');
+    } catch {
+      avisar('Não consegui copiar agora.');
+    }
+  };
   acoes.foto = async () => (await escolherFoto()) && desenhar();
   acoes.classroom = async () => {
     try {

@@ -7,6 +7,12 @@
   <meta name="description" content="Três passos para instalar o UFAC+ na Tela de Início do iPhone.">
   <link rel="apple-touch-icon" href="/icones/icone-180.png">
   <link rel="icon" href="/icones/icone-192.png">
+  <!-- O manifest faz o "Adicionar à Tela de Início" feito AQUI abrir o app (start_url), não este tutorial. -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="UFAC+">
+  <!-- Atalho antigo, criado antes do manifest, que abre esta página como app: vai direto para o UFAC+. -->
+  <script>if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) location.replace('/#/inicio');</script>
   <style>
     :root {
       color-scheme: light dark;
@@ -49,7 +55,7 @@
     </div>
   </header>
 
-  <div class="aviso"><strong>Use o Safari.</strong> Abra este endereço no Safari do iPhone (iOS 16.4 ou mais novo). No Chrome, procure a mesma opção no botão de compartilhar.</div>
+  <div class="aviso"><strong>Use o Safari.</strong> Abra este endereço no Safari do iPhone (iOS 16.4 ou mais novo). No Chrome, procure a mesma opção no botão de compartilhar. Pode fazer os passos aqui mesmo, nesta página: o ícone abre direto no app.</div>
 
   <section class="passo">
     <div>
@@ -112,7 +118,7 @@
     </svg>
   </section>
 
-  <div class="aviso"><strong>Depois de instalar</strong>Abra pelo ícone da Tela de Início (não pelo Safari). Só assim o iPhone libera as notificações das aulas, do RU e do Classroom, em Configurações › Notificações dentro do app.</div>
+  <div class="aviso"><strong>Depois de instalar</strong>Se o ícone que você já tinha abrir este tutorial no Safari, apague-o e adicione de novo. Abra pelo ícone da Tela de Início (não pelo Safari). Só assim o iPhone libera as notificações das aulas, do RU e do Classroom, em Configurações › Notificações dentro do app.</div>
 
   <a class="botao" href="/">Abrir o UFAC+</a>
 

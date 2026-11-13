@@ -1,6 +1,6 @@
 // Cliente do Worker. A sessão da Ufac é um texto cifrado que só o Worker abre; aqui ela só é guardada.
 import { gravar, ler } from './armazenamento.js';
-import { WORKER_URL } from './config.js';
+import { caminhos, WORKER_URL } from './config.js';
 import { classificar } from './regras.js';
 
 export class SemConexao extends Error {}
@@ -54,13 +54,36 @@ export async function lerPagina(sistema, caminho, opcoes) {
     await marcarExpirado(sistema, true);
     return null;
   }
-  if (r.status >= 400) throw new SemConexao(`A Ufac respondeu ${r.status}`);
-  await marcarExpirado(sistema, false);
+  if (r.status >= 400) {
+    // O Tomcat do Portal costuma responder 4xx (não o login) a pedidos de sessão vencida: confere antes de dizer "sem conexão".
+    if (sistema !== 'eticket' && r.status < 500 && (await sessaoCaiu(sistema))) {
+      await marcarExpirado(sistema, true);
+      return null;
+    }
+    throw new SemConexao(`A Ufac respondeu ${r.status}`);
+  }
+  let texto;
   try {
-    return await r.resposta.text();
+    texto = await r.resposta.text();
   } catch {
     throw new SemConexao('A página parou no meio');
   }
+  // Às vezes o Portal entrega o formulário de login com 200 no próprio endereço pedido.
+  if (sistema !== 'eticket' && /j_security_check|name="j_password"/.test(texto)) {
+    await marcarExpirado(sistema, true);
+    return null;
+  }
+  await marcarExpirado(sistema, false);
+  return texto;
+}
+
+/** Uma sonda só (compartilhada por pedidos simultâneos, válida por 1 min): a página inicial cai no login? */
+let sonda;
+function sessaoCaiu(sistema) {
+  sonda ??= pedir(sistema, sistema === 'professor' ? caminhos.professorInicio : caminhos.portalInicio)
+    .then((r) => r.estado === 'naLogin', () => false)
+    .finally(() => setTimeout(() => (sonda = null), 60000));
+  return sonda;
 }
 
 const ouvintes = new Set();
