@@ -14,14 +14,18 @@ import 'site_oficial.dart';
 import 'pdf.dart';
 
 class TelaRelatorios extends StatelessWidget {
-  const TelaRelatorios({super.key});
+  const TelaRelatorios({super.key, this.comVoltar = false});
+
+  /// Aberta pelo Menu (o aluno tem Biblioteca na barra): ganha tela própria e botão de fechar.
+  final bool comVoltar;
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
+    final tela = ListenableBuilder(
       listenable: RepositorioPortal.instancia,
       builder: (context, _) => _construir(context),
     );
+    return comVoltar ? Scaffold(body: tela) : tela;
   }
 
   Widget _construir(BuildContext context) {
@@ -33,7 +37,13 @@ class TelaRelatorios extends StatelessWidget {
           titulo: 'Relatórios',
           subtitulo: id == null ? null : '${id.curso} · ${id.periodo}º período · ${semestreCurto(id.semestre)}',
           acoes: [
-            BotaoRedondo(icone: Icons.menu_rounded, descricao: 'Menu', aoTocar: () => abrirMenu(context)),
+            comVoltar
+                ? BotaoRedondo(
+                    icone: Icons.close_rounded,
+                    descricao: 'Fechar',
+                    aoTocar: () => Navigator.of(context).maybePop(),
+                  )
+                : BotaoRedondo(icone: Icons.menu_rounded, descricao: 'Menu', aoTocar: () => abrirMenu(context)),
           ],
         ),
         Cartao(

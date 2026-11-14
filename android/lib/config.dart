@@ -30,6 +30,17 @@ String urlMatricula(String idInterno) =>
 String urlBiblioteca(String idInterno) =>
     'https://portal.ufac.br/biblioteca/pesquisa/pesquisar.action?matricula=$idInterno';
 
+// Biblioteca (mesmo login do portal). Detalhes em docs/reconhecimento.md.
+const urlBibliotecaMeuEspaco = 'https://portal.ufac.br/biblioteca/usuario/index.action';
+const urlBibliotecaRenovacao = 'https://portal.ufac.br/biblioteca/usuario/renovacao/emprestimos.action';
+const urlBibliotecaReservas = 'https://portal.ufac.br/biblioteca/usuario/reserva/reservas.action';
+const urlBibliotecaHistorico =
+    'https://portal.ufac.br/biblioteca/usuario/emprestimo/gridhistorico.action?_search=false&rows=100&page=1&sidx=dataRetirada&sord=desc';
+String urlAcervoPesquisa(String termo) =>
+    Uri.https('portal.ufac.br', '/biblioteca/pesquisa/resultado.action', {'keyword': termo}).toString();
+String urlAcervoExemplares(String idRegistro, {String titulo = '', String autor = ''}) =>
+    Uri.https('portal.ufac.br', '/biblioteca/ajax/exemplar/itens.action', {'idRegistro': idRegistro, 'titulo': titulo, 'subtitulo': '', 'autor': autor}).toString();
+
 enum RelatorioPortal {
   atestado('Atestado de Matrícula', 'atestadoMatricula', 'atestado_matricula.pdf'),
   comprovante('Comprovante de Matrícula', 'comprovanteMatricula', 'comprovante_matricula.pdf'),

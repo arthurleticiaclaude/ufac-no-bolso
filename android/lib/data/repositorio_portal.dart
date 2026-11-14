@@ -56,7 +56,8 @@ class RepositorioPortal extends ChangeNotifier {
 
   /// Logo depois do primeiro login a sessão está nova: é a hora de ler.
   Future<void> aoAbrirApp() async {
-    if (identificacao == null) await atualizar();
+    // Quem pulou o Portal no login não tem o que ler: a Início mostra o botão "Entrar no Portal".
+    if (identificacao == null && Sessao.instancia.conectado(Sistema.portal)) await atualizar();
   }
 
   Future<ResultadoPortal> atualizar() async {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/atualizacoes.dart';
 import '../data/classroom.dart';
 import '../data/perfil.dart';
+import '../data/repositorio_biblioteca.dart';
 import '../data/repositorio_portal.dart';
 import '../data/repositorio_professor.dart';
 import '../data/repositorio_ru.dart';
@@ -13,7 +14,7 @@ import 'horarios.dart';
 import 'inicio.dart';
 import 'notas.dart';
 import 'professor.dart';
-import 'relatorios.dart';
+import 'biblioteca.dart';
 import 'ru.dart';
 
 /// Estrutura principal: as 5 abas e a barra inferior.
@@ -24,7 +25,7 @@ class Casca extends StatefulWidget {
   State<Casca> createState() => _CascaState();
 }
 
-const _nomesDasAbas = ['Início', 'Horários', 'Notas', 'Relatórios', 'RU'];
+const _nomesDasAbas = ['Início', 'Horários', 'Notas', 'Biblioteca', 'RU'];
 const _nomesDasAbasProfessor = ['Início', 'Horários', 'Turmas', 'Relatórios', 'RU'];
 
 class _CascaState extends State<Casca> with WidgetsBindingObserver {
@@ -75,7 +76,7 @@ class _CascaState extends State<Casca> with WidgetsBindingObserver {
             TelaInicio(abrirRu: () => setState(() => _indice = 4)),
             const TelaHorarios(),
             const TelaNotas(),
-            const TelaRelatorios(),
+            const TelaBiblioteca(),
             const TelaRu(),
           ];
     return Scaffold(
@@ -95,6 +96,8 @@ class _CascaState extends State<Casca> with WidgetsBindingObserver {
         professor: professor,
         aoEscolher: (i) {
           telaAtual = (professor ? _nomesDasAbasProfessor : _nomesDasAbas)[i];
+          // A Biblioteca só lê o site quando a pessoa abre a aba (e no máximo a cada 6 horas).
+          if (!professor && i == 3) RepositorioBiblioteca.instancia.aoAbrirAba();
           setState(() => _indice = i);
         },
       ),

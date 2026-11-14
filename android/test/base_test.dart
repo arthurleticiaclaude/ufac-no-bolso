@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ufac_no_bolso/config.dart';
 import 'package:ufac_no_bolso/data/perfil.dart';
 import 'package:ufac_no_bolso/data/professor.dart';
 import 'package:ufac_no_bolso/data/refeicoes.dart';
 import 'package:ufac_no_bolso/data/repositorio_professor.dart';
+import 'package:ufac_no_bolso/extractors/eticket_cardapio.dart';
 import 'package:ufac_no_bolso/extractors/professor.dart';
 import 'package:ufac_no_bolso/main.dart';
 import 'package:ufac_no_bolso/session/sessao.dart';
@@ -37,6 +39,28 @@ void main() {
       expect(itensDoCardapio('Indisponível'), isEmpty);
       expect(itensDoCardapio('  '), isEmpty);
     });
+    test('formato de 12/11/2026: um item por linha, com rótulos e saudação (issue #1)', () {
+      const texto = '-Bife de panela acebolado \n-Arroz a grega \n-Feijão carioca \nSALADA: Alface com repolho \n'
+          'SOBREMESA: Gelado de coco com maçã caramelizada \n\nBom almoço <3';
+      expect(itensDoCardapio(texto), [
+        'Bife de panela acebolado',
+        'Arroz a grega',
+        'Feijão carioca',
+        'Salada: Alface com repolho',
+        'Sobremesa: Gelado de coco com maçã caramelizada',
+      ]);
+    });
+  });
+
+  test('cardápio guarda as quebras de linha (<br>) e aceita bloco aninhado', () {
+    final t = lerEticketCardapio(
+      '<div><div class="x"><h2 class="meal-title">Almoço</h2></div>'
+      '<div><p>R\$ 1.00</p><div class="cardapio">-Arroz<br>-Feijão<br>SALADA: Alface</div></div>'
+      '<h2 class="meal-title">Café da Manhã</h2><div class="cardapio">Não informado</div></div>',
+    )!;
+    expect(t[Refeicao.almoco], '-Arroz\n-Feijão\nSALADA: Alface');
+    expect(itensDoCardapio(t[Refeicao.almoco]!), ['Arroz', 'Feijão', 'Salada: Alface']);
+    expect(t[Refeicao.cafe], 'Não informado');
   });
 
   group('formatos', () {
@@ -54,9 +78,10 @@ void main() {
   });
 
   testWidgets('as 5 abas abrem sem erro de layout', (tester) async {
+    FlutterSecureStorage.setMockInitialValues({});
     Sessao.instancia.leitor = (_, _) async => const PaginaLida(ResultadoVerificacao.semResposta);
     await tester.pumpWidget(const UfacNoBolso(loginConcluido: true));
-    for (final aba in ['Horários', 'Notas', 'Relatórios', 'RU', 'Início']) {
+    for (final aba in ['Horários', 'Notas', 'Biblioteca', 'RU', 'Início']) {
       await tester.tap(find.widgetWithText(NavigationDestination, aba));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -84,7 +109,7 @@ void main() {
     });
     await tester.pumpWidget(const UfacNoBolso(loginConcluido: true));
     expect(find.text('Olá, Maria'), findsOneWidget);
-    expect(find.text('Chamadas pendentes'), findsOneWidget);
+    expect(find.text('Para fazer'), findsOneWidget);
     for (final aba in ['Horários', 'Turmas', 'Relatórios', 'RU', 'Início']) {
       await tester.tap(find.widgetWithText(NavigationDestination, aba));
       await tester.pumpAndSettle();

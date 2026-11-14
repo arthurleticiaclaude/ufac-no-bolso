@@ -48,7 +48,7 @@ class RepositorioProfessor extends ChangeNotifier {
   }
 
   Future<void> aoAbrirApp() async {
-    if (turmas == null) await atualizar();
+    if (turmas == null && Sessao.instancia.conectado(Sistema.professor)) await atualizar();
   }
 
   Future<ResultadoPortal> atualizar() async {

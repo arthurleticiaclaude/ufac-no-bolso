@@ -60,12 +60,12 @@ Fatos confirmados:
 ## 5. Telas e navegação
 
 ### Boas-vindas (primeira abertura, ou depois de "Sair")
-Ícone próprio do app (capelo branco e âmbar sobre azul, o mesmo para todos), "UFAC+", frase "Portal do Aluno e RU num lugar só…". Cartão com 2 garantias: "Sua senha fica com a Ufac" e "Seus dados ficam no seu celular". Dois botões: **Sou aluno** (destaque) e **Sou professor** (contorno). O perfil define portal, abas e cores (azul para alunos, vermelho para professores). Rodapé: "App independente, feito por um aluno. Não é um aplicativo oficial da Ufac."
+Ícone próprio do app (capelo branco e âmbar sobre azul, o mesmo para todos), "UFAC+", frase "Portal do Aluno e RU num lugar só…". Cartão com 2 garantias: "Sua senha fica com a Ufac" e "Seus dados ficam no seu celular". Dois botões: **Sou aluno** (destaque) e **Sou professor** (contorno). O perfil define portal, abas e cores (azul para alunos, âmbar para professores). Rodapé: "App independente, feito por um aluno. Não é um aplicativo oficial da Ufac."
 
 ### Login oficial
-Tela do app com voltar, título "Entrar com ID Ufac", "Etapa 1 de 2 · Portal do Aluno" e selo verde "Página oficial da Ufac · sua senha não passa pelo app". Embaixo, a WebView com a página de login real. Depois do Portal, sempre pedir a etapa 2 (eTICKET), porque o login não é compartilhado. Ao concluir: ler os dados da pessoa e abrir a Início.
+Tela do app com voltar, título "Entrar com ID Ufac", "Etapa 1 de 2 · Portal do Aluno" e selo verde "Página oficial da Ufac · sua senha não passa pelo app". Embaixo, a WebView com a página de login real. Depois do Portal, sempre pedir a etapa 2 (eTICKET), porque o login não é compartilhado. Cada etapa tem o botão **Pular** (desde 14/11/2026): dá para conectar só o Portal ou só o eTICKET, nunca nenhum; o resto se conecta depois em Configurações › Contas da Ufac. Ao concluir: ler os dados da pessoa e abrir a Início.
 
-**Barra inferior (5 itens):** Início · Horários · Notas · Relatórios · **RU**
+**Barra inferior (5 itens):** Início · Horários · Notas · Biblioteca · **RU** (desde 14/11/2026; Relatórios fica no Menu). Professor: Início · Horários · Turmas · Relatórios · RU.
 
 **Menu (☰):** botão redondo no canto superior direito das telas principais (ao lado das notificações na Início). Abre a tela Menu.
 
@@ -155,14 +155,15 @@ Material 3 com tema próprio. Nada de cor solta no código. **Modo claro e escur
 | verde (comida, "offline") | `#1F7A44` sobre `#E1F4E8` | `#7BD69E` sobre `#163323` |
 | perigo (Sair, PDF) | `#B42318` sobre `#FDE8E6` | ajustar mantendo contraste AA |
 
-**Versão dos professores** (mesmos tokens, trocando só estes; contraste AA conferido):
+**Versão dos professores** (âmbar da Ufac desde 14/11/2026; mesmos tokens, trocando só estes; contraste AA conferido em `test/contraste_test.dart`):
 
 | Token | Claro | Escuro |
 |---|---|---|
-| primary | `#B3261E` | `#8C1D18` |
-| onPrimaryMuted | `#F9D6D3` | `#F6D3CF` |
-| navActive / navActiveBg | `#B3261E` / `#FCE8E6` | `#FFB4AB` / `#47201D` |
-| perigo (laranja, para não confundir com o vermelho) | `#C4320A` sobre `#FFF0EA` | `#FF9C66` sobre `#3B1D0E` |
+| primary (texto sobre ela: `#1A1300`) | `#F2A516` | `#F5B23A` |
+| onPrimaryMuted | `#4D3300` | `#4D3300` |
+| accent (botão de destaque, escuro sobre o âmbar) | `#1A1300` (texto branco) | `#1A1300` (texto branco) |
+| navActive / navActiveBg (também a cor dos botões de texto) | `#8A5300` / `#FFF1D6` | `#F8C76A` / `#3A2A0A` |
+| perigo | o mesmo vermelho do aluno | o mesmo vermelho do aluno |
 
 - **Fonte:** Plus Jakarta Sans (embutida). Saldo 34–40 px peso 800; títulos de tela 24–26 px peso 800; títulos de cartão 18 px peso 700; texto 14–15 px; rótulos 11–13 px peso 600.
 - **Raios:** cartões 20–22 px; botões 14 px; ícones-quadrado 12–16 px; selos em pílula.
@@ -309,7 +310,7 @@ ufac_no_bolso/
 - **Visual:**
   - Nome: UFAC+.
   - Ícone: **opção E**, capelo branco com borla âmbar sobre `#0B4FA8`, igual para todos.
-  - Professores: vermelho `#B3261E` (claro) e `#8C1D18` (escuro), com perigo laranja, tudo com contraste AA conferido.
+  - Professores: âmbar `#F2A516` (claro) e `#F5B23A` (escuro), com texto escuro e perigo vermelho, contraste AA conferido (era vermelho até 14/11/2026).
   - Calendário: o atalho saiu do Menu (agenda parada em 2022).
 - **Ferramentas:** pdfx em vez de pdfrx; `flutter_inappwebview` fixo em `6.2.0-beta.3`.
 - **Fora do escopo por ora:** o ônibus (sem dados públicos). Pode voltar só como tabela manual.

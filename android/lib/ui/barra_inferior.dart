@@ -8,7 +8,7 @@ class BarraInferior extends StatelessWidget {
   final int indice;
   final ValueChanged<int> aoEscolher;
 
-  /// Professor: "Turmas" no lugar de "Notas".
+  /// Professor: "Turmas" no lugar de "Notas" e "Relatórios" no lugar de "Biblioteca".
   final bool professor;
 
   @override
@@ -25,7 +25,9 @@ class BarraInferior extends StatelessWidget {
           professor
               ? const NavigationDestination(icon: Icon(Icons.groups_rounded), label: 'Turmas')
               : const NavigationDestination(icon: Icon(Icons.grading_rounded), label: 'Notas'),
-          const NavigationDestination(icon: Icon(Icons.description_rounded), label: 'Relatórios'),
+          professor
+              ? const NavigationDestination(icon: Icon(Icons.description_rounded), label: 'Relatórios')
+              : const NavigationDestination(icon: Icon(Icons.local_library_rounded), label: 'Biblioteca'),
           const NavigationDestination(icon: Icon(Icons.restaurant_rounded), label: 'RU'),
         ],
       ),

@@ -5,6 +5,7 @@ import '../data/classroom.dart';
 import '../data/foto_perfil.dart';
 import '../data/perfil.dart';
 import '../data/preferencias.dart';
+import '../data/repositorio_biblioteca.dart';
 import '../data/repositorio_professor.dart';
 import '../data/repositorio_portal.dart';
 import '../data/repositorio_ru.dart';
@@ -16,6 +17,7 @@ import '../ui/componentes.dart';
 import 'boas_vindas.dart';
 import 'classroom.dart';
 import 'configuracoes.dart';
+import 'relatorios.dart';
 import 'site_oficial.dart';
 
 void abrirMenu(BuildContext context) {
@@ -45,6 +47,7 @@ Future<void> confirmarSaida(BuildContext context) async {
   await RepositorioRu.instancia.limpar();
   RepositorioPortal.instancia.limpar();
   RepositorioProfessor.instancia.limpar();
+  RepositorioBiblioteca.instancia.limparCache();
   await FotoPerfil.instancia.remover();
   Preferencias.instancia.limpar();
   Perfil.instancia.limpar();
@@ -78,7 +81,11 @@ class TelaMenu extends StatelessWidget {
     final professor = Perfil.instancia.ehProfessor;
     final atalhos = professor ? _atalhosProfessor(context) : [
       _Atalho(Icons.how_to_reg_rounded, 'Matrícula', () => _abrirSite(context, 'Matrícula', urlMatricula)),
-      _Atalho(Icons.local_library_rounded, 'Biblioteca', () => _abrirSite(context, 'Biblioteca', urlBiblioteca)),
+      _Atalho(
+        Icons.description_rounded,
+        'Relatórios',
+        () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TelaRelatorios(comVoltar: true))),
+      ),
       _Atalho(Icons.campaign_rounded, 'Comunicações', () => _abrirComunicacoes(context)),
       _Atalho(
         Icons.link_rounded,

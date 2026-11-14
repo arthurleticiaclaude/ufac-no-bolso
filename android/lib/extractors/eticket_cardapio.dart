@@ -1,3 +1,4 @@
+import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html;
 
 import '../config.dart';
@@ -10,19 +11,26 @@ Refeicao? _refeicaoDoTitulo(String titulo) {
   return null;
 }
 
+/// Texto com as quebras de linha: desde 12/11/2026 o eTICKET publica um item por linha (com <br>).
+String _textoComQuebras(Element el) {
+  final copia = el.clone(true);
+  for (final br in copia.querySelectorAll('br')) {
+    br.replaceWith(Text('\n'));
+  }
+  return copia.text.trim();
+}
+
 /// Lê a página logada `/eticket/menu/`. A ordem das refeições muda, então o nome é o que vale.
+/// Percorre a página em ordem, então aceita o cardápio aninhado em outros blocos.
 /// Devolve null se a página não tiver o formato esperado.
 Map<Refeicao, String>? lerEticketCardapio(String pagina) {
   final textos = <Refeicao, String>{};
-  for (final titulo in html.parse(pagina).querySelectorAll('.meal-title')) {
-    final refeicao = _refeicaoDoTitulo(titulo.text);
-    var irmao = titulo.nextElementSibling;
-    while (irmao != null && !irmao.classes.contains('meal-title')) {
-      if (irmao.classes.contains('cardapio')) {
-        if (refeicao != null) textos[refeicao] = irmao.text.trim();
-        break;
-      }
-      irmao = irmao.nextElementSibling;
+  Refeicao? atual;
+  for (final el in html.parse(pagina).querySelectorAll('.meal-title, .cardapio')) {
+    if (el.classes.contains('meal-title')) {
+      atual = _refeicaoDoTitulo(el.text);
+    } else if (atual != null && !textos.containsKey(atual)) {
+      textos[atual] = _textoComQuebras(el);
     }
   }
   return textos.isEmpty ? null : textos;

@@ -74,9 +74,7 @@ class _TelaLoginState extends State<TelaLogin> {
     if (!mounted || url == null || url.scheme != 'https') return;
     final estado = classificar(_sistema, url);
     if (estado == EstadoPagina.naLogin) {
-      await controle.evaluateJavascript(
-        source: _sistema == Sistema.eticket ? _travarTamanho : _aproximarFormulario,
-      );
+      await controle.evaluateJavascript(source: _sistema == Sistema.eticket ? _travarTamanho : _aproximarFormulario);
       // Só avisa o app do que foi digitado; não lê nada antes de a pessoa apertar Entrar.
       await controle.evaluateJavascript(source: scriptCapturarLogin(eticket: _sistema == Sistema.eticket));
       if (!mounted) return;
@@ -88,16 +86,40 @@ class _TelaLoginState extends State<TelaLogin> {
     if (_lembrar && digitado != null) {
       await Credenciais.instancia.guardar(digitado.$1, digitado.$2);
     }
+    await Sessao.instancia.conectar(_sistema);
+    _conectouAlgum = true;
+    await _avancar();
+  }
+
+  /// Algum sistema deste login já foi conectado. Pular todos não vale: o app ficaria vazio.
+  bool _conectouAlgum = false;
+
+  Future<void> _avancar() async {
     if (!mounted) return;
     if (_etapa < widget.etapas.length - 1) {
       setState(() {
         _etapa++;
         _carregando = true;
+        _falhou = false;
       });
       return;
     }
     await Sessao.instancia.concluirLogin();
     if (mounted) widget.aoConcluir(context);
+  }
+
+  /// "Pular": a pessoa não usa este sistema (ex.: só quer o RU). Dá para conectar depois.
+  Future<void> _pular() async {
+    final ultimo = _etapa == widget.etapas.length - 1;
+    if (ultimo && !_conectouAlgum) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Conecte pelo menos um: o Portal ou o eTICKET.')));
+      return;
+    }
+    await Sessao.instancia.pular(_sistema);
+    _digitado = null;
+    await _avancar();
   }
 
   Future<NavigationActionPolicy> _aoNavegar(InAppWebViewController controle, NavigationAction acao) async {
@@ -143,13 +165,24 @@ class _TelaLoginState extends State<TelaLogin> {
                       ],
                     ),
                   ),
+                  if (widget.etapas.length > 1)
+                    TextButton(
+                      onPressed: _pular,
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(AppMedidas.toqueMinimo, AppMedidas.toqueMinimo),
+                      ),
+                      child: const Text('Pular'),
+                    ),
                 ],
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppMedidas.margem),
               child: Text(
-                'Entre com seu ID Ufac. Sua senha fica só no site da Ufac.',
+                widget.etapas.length > 1
+                    ? 'Entre com seu ID Ufac. Não usa o ${_sistema.nome}? Toque em Pular: dá para conectar depois, '
+                          'em Configurações.'
+                    : 'Entre com seu ID Ufac. Sua senha fica só no site da Ufac.',
                 style: AppTexto.apoio.copyWith(color: c.secundario),
               ),
             ),
@@ -236,7 +269,9 @@ class _TelaLoginState extends State<TelaLogin> {
                           ),
                           onLoadStop: _aoTerminarDeCarregar,
                           onReceivedError: (_, pedido, erro) {
-                            if (pedido.isForMainFrame == true && erro.type != WebResourceErrorType.CANCELLED && mounted) {
+                            if (pedido.isForMainFrame == true &&
+                                erro.type != WebResourceErrorType.CANCELLED &&
+                                mounted) {
                               setState(() => _falhou = true);
                             }
                           },

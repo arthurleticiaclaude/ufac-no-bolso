@@ -7,10 +7,12 @@ import 'app_texto.dart';
 class AppTema {
   static final claro = _tema(AppCores.claro, Brightness.light);
   static final escuro = _tema(AppCores.escuro, Brightness.dark);
-  static final professorClaro = _tema(AppCores.professorClaro, Brightness.light);
-  static final professorEscuro = _tema(AppCores.professorEscuro, Brightness.dark);
+  // No professor, o âmbar é claro demais para texto sobre o branco: os botões de texto, chaves
+  // e links do Material usam o tom escuro da aba ativa, e o âmbar fica para os cartões.
+  static final professorClaro = _tema(AppCores.professorClaro, Brightness.light, acao: AppCores.professorClaro.navAtivo);
+  static final professorEscuro = _tema(AppCores.professorEscuro, Brightness.dark, acao: AppCores.professorEscuro.navAtivo);
 
-  static ThemeData _tema(AppCores c, Brightness brilho) {
+  static ThemeData _tema(AppCores c, Brightness brilho, {Color? acao}) {
     return ThemeData(
       useMaterial3: true,
       brightness: brilho,
@@ -20,7 +22,8 @@ class AppTema {
       colorScheme: ColorScheme.fromSeed(
         seedColor: c.primaria,
         brightness: brilho,
-        primary: c.primaria,
+        primary: acao ?? c.primaria,
+        onPrimary: acao == null ? null : c.superficie,
         surface: c.superficie,
         onSurface: c.texto,
         error: c.perigo,

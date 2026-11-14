@@ -87,6 +87,8 @@ class RepositorioRu extends ChangeNotifier {
   /// O cardápio só é lido se ainda faltar alguma refeição de hoje.
   Future<void> _atualizarTudo(Future<PaginaLida> Function() lerInicio, {bool forcarCardapio = false}) async {
     if (carregando) return;
+    // eTICKET pulado no login: nada para ler (o cartão do RU mostra "Conectar eTICKET").
+    if (!Sessao.instancia.conectado(Sistema.eticket)) return;
     carregando = true;
     notifyListeners();
     final pagina = await lerInicio();

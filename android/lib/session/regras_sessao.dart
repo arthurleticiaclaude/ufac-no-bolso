@@ -3,7 +3,10 @@
 enum Sistema {
   portal('Portal do Aluno', 'https://portal.ufac.br/aluno/index.action'),
   professor('Portal do Professor', 'https://portal.ufac.br/professor/index.action'),
-  eticket('eTICKET do RU', 'https://sistemas.ufac.br/eticket/');
+  eticket('eTICKET do RU', 'https://sistemas.ufac.br/eticket/'),
+
+  /// Usa a sessão do Portal do Aluno; só os endereços começam com /biblioteca.
+  biblioteca('Biblioteca', 'https://portal.ufac.br/biblioteca/pesquisa/pesquisar.action');
 
   const Sistema(this.nome, this.entrada);
   final String nome;
@@ -40,5 +43,13 @@ EstadoPagina classificar(Sistema sistema, Uri uri) {
         return EstadoPagina.naLogin;
       }
       return EstadoPagina.logado;
+    case Sistema.biblioteca:
+      if (uri.host != 'portal.ufac.br') return EstadoPagina.outra;
+      if (caminho.contains('j_security_check')) return EstadoPagina.outra;
+      // Sem sessão, a Biblioteca manda para o login do portal.
+      if (caminho.contains('login') || caminho.contains('logout')) return EstadoPagina.naLogin;
+      // 404.action e 500.action são as páginas de erro da própria Biblioteca.
+      if (RegExp(r'/biblioteca/\d{3}\.action').hasMatch(caminho)) return EstadoPagina.outra;
+      return caminho.startsWith('/biblioteca') ? EstadoPagina.logado : EstadoPagina.outra;
   }
 }

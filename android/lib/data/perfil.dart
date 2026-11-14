@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 enum PerfilUsuario { aluno, professor }
 
-/// Quem usa este celular. Define o portal, as abas e as cores (azul para alunos, vermelho para professores).
+/// Quem usa este celular. Define o portal, as abas e as cores (azul para alunos, âmbar para professores).
 class Perfil extends ChangeNotifier {
   Perfil._();
   static final instancia = Perfil._();

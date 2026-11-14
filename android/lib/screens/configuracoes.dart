@@ -9,15 +9,78 @@ import '../data/foto_perfil.dart';
 import '../data/perfil.dart';
 import '../data/preferencias.dart';
 import '../data/repositorio_portal.dart';
+import '../data/repositorio_biblioteca.dart';
 import '../data/repositorio_professor.dart';
 import '../data/repositorio_ru.dart';
 import '../theme/app_cores.dart';
 import '../theme/app_medidas.dart';
 import '../theme/app_texto.dart';
 import '../session/credenciais.dart';
+import '../session/regras_sessao.dart';
+import '../session/sessao.dart';
 import '../ui/componentes.dart';
+import 'acoes_portal.dart';
+import 'acoes_professor.dart';
 import 'menu.dart';
 import 'relatar.dart';
+import 'ru.dart' show conectarEticket;
+
+/// Quais sistemas da Ufac estão conectados. Quem pulou um no login conecta por aqui.
+class _CartaoContas extends StatelessWidget {
+  const _CartaoContas();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.cores;
+    final professor = Perfil.instancia.ehProfessor;
+    final portal = professor ? Sistema.professor : Sistema.portal;
+    final linhas = [
+      (portal, professor ? 'Turmas, horários e relatórios' : 'Dados, horários, notas e biblioteca'),
+      (Sistema.eticket, 'Saldo, QR de entrada e cardápio'),
+    ];
+    return ListenableBuilder(
+      listenable: Sessao.instancia,
+      builder: (context, _) => Cartao(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Contas da Ufac', style: AppTexto.tituloCartao),
+            for (final (sistema, apoio) in linhas) ...[
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(sistema.nome, style: AppTexto.corpoForte),
+                        Text(
+                          Sessao.instancia.conectado(sistema) ? 'Conectado · $apoio' : 'Não conectado · $apoio',
+                          style: AppTexto.apoio.copyWith(color: c.secundario),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (!Sessao.instancia.conectado(sistema))
+                    TextButton(
+                      onPressed: () => switch (sistema) {
+                        Sistema.eticket => conectarEticket(context),
+                        Sistema.professor => entrarNoPortalProfessor(context),
+                        _ => entrarNoPortal(context),
+                      },
+                      child: const Text('Conectar'),
+                    )
+                  else
+                    Icon(Icons.check_circle_rounded, color: c.verde),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class TelaConfiguracoes extends StatelessWidget {
   const TelaConfiguracoes({super.key});
@@ -65,6 +128,7 @@ class TelaConfiguracoes extends StatelessWidget {
     await RepositorioRu.instancia.limparCache();
     RepositorioPortal.instancia.limparCache();
     RepositorioProfessor.instancia.limparCache();
+    RepositorioBiblioteca.instancia.limparCache();
     await RepositorioRu.instancia.aoAbrirApp();
     if (Perfil.instancia.ehProfessor) {
       await RepositorioProfessor.instancia.aoAbrirApp();
@@ -194,6 +258,7 @@ class TelaConfiguracoes extends StatelessWidget {
                   ],
                 ),
               ),
+              const _CartaoContas(),
               const _CartaoLoginAutomatico(),
               ItemLista(
                 icone: Icons.system_update_rounded,

@@ -1,0 +1,34 @@
+<!-- Resultado de "Pesquisar Acervo" (/biblioteca/pesquisa/resultado.action?keyword=), estrutura real com dados fictícios. -->
+<html><body>
+<div id="corpo">
+<div id="view-container-resultado-pesquisa-geral"><div>
+<a href="/biblioteca/pesquisa/clearpesquisaanterior.action" title="Limpar último resultado"><img src="/biblioteca/img/icone_lixeira.png"></a>
+<form id="formExportarResultado" name="formExportarResultado" action="/biblioteca/ajaxpub/relatorio/resultado/sendacervo.action" onsubmit="return false;" method="POST">
+<input type="hidden" name="emailsDestinatarios">
+<table class="grid-resultado resultado-pesquisa-geral" cellpadding="0" cellspacing="0">
+<thead class="ui-widget-header"><tr><th width="5%">#</th><th width="35%">Autor</th><th>Título</th><th width="7%">Ano</th><th>Biblioteca</th></tr></thead>
+<tbody class="ui-widget-content ">
+<tr idregistro="1001">
+ <td align="center"><input type="hidden" name="ids" value="1001">
+  <div idd="autor" class="displayNone">SOUZA, Maria de Teste.</div>
+  <div idd="titulo" class="displayNone">Curso de direito civil de exemplo</div>
+  <div idd="subtitulo" class="displayNone">parte geral</div>
+  <a class="link-informacao-exemplar" hasanexo="false" idregistro="1001" title="Mais informações sobre este exemplar"> 1</a></td>
+ <td>SOUZA, Maria de Teste.</td>
+ <td>Curso de direito civil de exemplo&nbsp;: parte geral&nbsp;</td>
+ <td align="center">2019.</td>
+ <td align="center"> Biblioteca Central</td>
+</tr>
+<tr idregistro="1002">
+ <td align="center"><input type="hidden" name="ids" value="1002">
+  <div idd="autor" class="displayNone"></div>
+  <div idd="titulo" class="displayNone">Manual fictício de contratos</div>
+  <div idd="subtitulo" class="displayNone"></div>
+  <a class="link-informacao-exemplar" hasanexo="true" idregistro="1002" title="Mais informações sobre este exemplar"> 2</a></td>
+ <td></td>
+ <td>Manual fictício de contratos&nbsp;</td>
+ <td align="center"></td>
+ <td align="center"> Biblioteca Setorial de Exemplo</td>
+</tr>
+</tbody></table></form></div></div></div>
+</body></html>

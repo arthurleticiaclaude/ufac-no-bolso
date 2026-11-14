@@ -166,3 +166,15 @@ Prints dos temas: `flutter test test/visual_test.dart --update-goldens --tags vi
 - Releases: `UFAC+ Android 0.1.x` (tag `v0.1.x`, sempre a Latest, com o `.apk`) e `UFAC+ iPhone 1.x` (tag `iphone-v1.x`, sempre `--latest=false`).
 - O site (`ufac-plus.github.io/ufac-plus`) mostra primeiro a versão do celular de quem abre (Android ou iPhone).
 - Commits no repositório público usam o e-mail anônimo do GitHub (`…@users.noreply.github.com`).
+
+## 2026-11-14: professor em âmbar, telas do professor reorganizadas e aba Biblioteca
+- **Cor do professor:** o vermelho deu lugar ao âmbar da Ufac (`#F2A516` claro, `#F5B23A` escuro), o mesmo do botão Mostrar QR do aluno. Sobre o âmbar o texto é escuro (`#1A1300`); o botão de destaque, que no aluno é âmbar, vira escuro no professor para não sumir no cartão; os botões de texto e as chaves do Material usam o tom escuro da aba ativa (`#8A5300`), porque âmbar sobre branco não passa no AA. O vermelho volta a ser só "perigo". Contraste conferido em `test/contraste_test.dart` (as quatro paletas).
+- **Telas do professor:** cartão com Turmas, Alunos e Semestre; "Próxima aula" com a turma separada; "Para fazer" junta chamadas pendentes e notas abertas, cada uma com o botão da ação; na turma, números no topo, botões grandes e cada aula do mês com o botão na própria linha. A ação "Fazer chamada" é sempre âmbar.
+- **Faixas da Início:** viraram um item só, colado ao cabeçalho. Antes, as faixas escondidas deixavam um vão no topo (no aluno e no professor).
+- **Biblioteca (só aluno, decisão de Arthur):** a aba Biblioteca entra no lugar de Relatórios na barra; Relatórios vai para o Menu. A aba pesquisa no acervo, mostra os exemplares (localização e situação), o histórico de empréstimos (salvo no celular, relido ao abrir a aba no máximo a cada 6 horas) e abre Renovação e Reservas na página oficial: quem renova ou reserva é a pessoa, no site. O professor continua com Relatórios na barra.
+- **Cardápio no formato novo (issue #1):** desde 12/11/2026 o eTICKET publica um item por linha (com `<br>`), rótulos como "SALADA:" e uma saudação no fim. O Android agora guarda as quebras de linha e separa os itens igual ao app do iPhone: frase com vírgulas ou uma linha por item, rótulo em "Salada: …", sem saudação nem "<3".
+
+## 2026-11-14: conectar só o Portal ou só o eTICKET
+- No login em duas etapas, cada etapa tem o botão **Pular** (não dá para pular as duas). Serve para quem só usa o RU, ou não usa o RU.
+- O que foi pulado fica guardado no cofre (`sistemas_pulados`) e o app não lê nada daquele sistema: nem ao abrir, nem ao voltar. No lugar dos dados aparece um convite para conectar ("eTICKET não conectado" no cartão do RU; "Portal do Aluno não conectado" na Início).
+- Para conectar depois: o próprio botão do cartão, ou **Configurações › Contas da Ufac**. Um login que dá certo naquele sistema desfaz o "pular". "Sair" apaga a escolha.

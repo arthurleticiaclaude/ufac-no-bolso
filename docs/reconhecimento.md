@@ -121,6 +121,13 @@ Resolvidos no próprio CLAUDE.md, com os motivos em `docs/decisoes.md`.
   - Pedidos: `/biblioteca/usuario/pedidos/meuspedidos.action`
   - Histórico: `/biblioteca/usuario/emprestimo/historico.action`. Abre, com a tabela de empréstimos vazia (0 linhas).
 - **Pendente:** ver Renovação e Histórico de alguém com livro emprestado, para conhecer as colunas (título, devolução prevista, renovações) e o botão de renovar. Leitura sempre com a máscara.
+- **2026-11-14, leitura mascarada no Chrome do Arthur (logado no Portal):**
+  - A Biblioteca só reconhece a pessoa depois de abrir a entrada com o número interno (`pesquisar.action?matricula=`). Sem sessão, manda para o login do portal.
+  - **Histórico:** a página `historico.action` é só a moldura; os dados vêm de um jqGrid em `/biblioteca/usuario/emprestimo/gridhistorico.action?_search=false&rows=100&page=1&sidx=dataRetirada&sord=desc`. Resposta JSON: `{firstResult, rows:[{dataRetirada, dataEntrega, nome}], totalPages, totalRows (texto), page}`. Datas em `dd/mm/aaaa hh:mm:ss`; `nome` é "Título / Autor." (às vezes só "Título /"). Na conta do Arthur, 9 linhas, todas devolvidas. A tabela da página aparece com 0 linhas no `fetch` porque é montada por JavaScript.
+  - **Renovação e Reservas:** sem empréstimo ativo ou reserva, voltam para Meu Espaço (passando por `http://`). As colunas da Renovação ainda não foram vistas: no app ela abre na página oficial.
+  - **Pesquisar Acervo:** `resultado.action?keyword=` devolve HTML com `table.resultado-pesquisa-geral` (até 500 linhas, sem paginação). Cada `tr[idregistro]` tem `div[idd=autor|titulo|subtitulo]` escondidos e as colunas #, Autor, Título, Ano ("2006."), Biblioteca. Dados públicos.
+  - **Exemplares:** o link "Mais informações" chama `/biblioteca/ajax/exemplar/informacoes.action` (ficha MARC completa), que por sua vez lê `/biblioteca/ajax/exemplar/itens.action?idRegistro=&titulo=&subtitulo=&autor=`: HTML com `table.itens` (Localização, Biblioteca, Coleção, Tipo de Material, Regulamento de Empréstimo, Situação, Cód. Barras). Situação vista: "Disponível". A reserva é um POST para `reserva/reservaritens.action`: o app não usa.
+  - Fixtures com a mesma estrutura e dados fictícios: `fixtures/biblioteca_*.html`.
 
 ## Portal do Professor (2026-11-11)
 Leitura mascarada com um professor voluntário, que entrou com o próprio login no Chrome do Arthur. Nada de dado real foi guardado. Nenhuma página que lança ou grava algo foi aberta.

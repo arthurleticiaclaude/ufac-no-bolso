@@ -5,6 +5,7 @@ import 'data/foto_perfil.dart';
 import 'data/perfil.dart';
 import 'data/preferencias.dart';
 import 'data/repositorio_portal.dart';
+import 'data/repositorio_biblioteca.dart';
 import 'data/repositorio_professor.dart';
 import 'data/repositorio_ru.dart';
 import 'pdf/servico_pdf.dart';
@@ -24,12 +25,14 @@ Future<void> main() async {
     await ServicoPdf.limparTemporarios();
     await Preferencias.instancia.carregar();
     await Perfil.instancia.carregar();
+    await Sessao.instancia.carregarPulados();
     await FotoPerfil.instancia.carregar();
     await RepositorioRu.instancia.carregarSalvos();
     if (Perfil.instancia.ehProfessor) {
       await RepositorioProfessor.instancia.carregarSalvos();
     } else {
       await RepositorioPortal.instancia.carregarSalvos();
+      await RepositorioBiblioteca.instancia.carregarSalvos();
     }
   }
   runApp(UfacNoBolso(loginConcluido: loginConcluido));
@@ -47,7 +50,7 @@ class UfacNoBolso extends StatelessWidget {
       builder: (context, _) => MaterialApp(
         title: 'UFAC+',
         debugShowCheckedModeBanner: false,
-        // Alunos em azul, professores em vermelho. O ícone é o mesmo para todos.
+        // Alunos em azul, professores em âmbar. O ícone é o mesmo para todos.
         theme: Perfil.instancia.ehProfessor ? AppTema.professorClaro : AppTema.claro,
         darkTheme: Perfil.instancia.ehProfessor ? AppTema.professorEscuro : AppTema.escuro,
         themeMode: switch (_temaForcado) {

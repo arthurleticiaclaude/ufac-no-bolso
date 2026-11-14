@@ -4,12 +4,15 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 import '../data/refeicoes.dart';
 import '../data/repositorio_ru.dart';
+import '../session/regras_sessao.dart';
+import '../session/sessao.dart';
 import '../theme/app_cores.dart';
 import '../theme/app_medidas.dart';
 import '../theme/app_texto.dart';
 import '../ui/componentes.dart';
 import '../ui/formatos.dart';
 import 'historico.dart';
+import 'login.dart';
 import 'menu.dart';
 import 'qr.dart';
 import 'recarga.dart';
@@ -27,9 +30,8 @@ class _TelaRuState extends State<TelaRu> {
   Future<void> _abrirInstagram() async {
     final abriu = await launchUrl(Uri.parse(instagramRu), mode: LaunchMode.externalApplication);
     if (!abriu && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Não consegui abrir o Instagram neste celular.')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Não consegui abrir o Instagram neste celular.')));
     }
   }
 
@@ -45,6 +47,19 @@ class _TelaRuState extends State<TelaRu> {
           SizedBox(height: 10),
           Skeleton(altura: 36, raio: AppMedidas.raioIcone),
         ],
+      );
+    }
+    if (!Sessao.instancia.conectado(Sistema.eticket)) {
+      return EstadoVazio(
+        icone: Icons.restaurant_menu_rounded,
+        titulo: 'O cardápio vem do eTICKET',
+        texto: 'Conecte o eTICKET no cartão acima, ou veja no Instagram do RU.',
+        acao: BotaoContorno(
+          texto: 'Ver no Instagram do RU',
+          icone: Icons.open_in_new_rounded,
+          cor: c.navAtivo,
+          aoTocar: _abrirInstagram,
+        ),
       );
     }
     final semLeitura = ru.cardapioDeHoje == null;
@@ -66,7 +81,7 @@ class _TelaRuState extends State<TelaRu> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: RepositorioRu.instancia,
+      listenable: Listenable.merge([RepositorioRu.instancia, Sessao.instancia]),
       builder: (context, _) => _construir(context, RepositorioRu.instancia),
     );
   }
@@ -81,9 +96,7 @@ class _TelaRuState extends State<TelaRu> {
         CabecalhoTela(
           titulo: 'RU',
           subtitulo: 'Restaurante Universitário · Ufac',
-          acoes: [
-            BotaoRedondo(icone: Icons.menu_rounded, descricao: 'Menu', aoTocar: () => abrirMenu(context)),
-          ],
+          acoes: [BotaoRedondo(icone: Icons.menu_rounded, descricao: 'Menu', aoTocar: () => abrirMenu(context))],
         ),
         const CartaoSaldo(tituloSaldo: 'Saldo'),
         Cartao(
@@ -126,19 +139,34 @@ class _TelaRuState extends State<TelaRu> {
             ],
           ),
         ),
-        ItemLista(
-          icone: Icons.history_rounded,
-          corIcone: c.navAtivo,
-          fundoIcone: c.navAtivoFundo,
-          titulo: 'Histórico de uso',
-          subtitulo: 'Refeições e recargas',
-          aoTocar: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TelaHistorico())),
-        ),
+        if (Sessao.instancia.conectado(Sistema.eticket))
+          ItemLista(
+            icone: Icons.history_rounded,
+            corIcone: c.navAtivo,
+            fundoIcone: c.navAtivoFundo,
+            titulo: 'Histórico de uso',
+            subtitulo: 'Refeições e recargas',
+            aoTocar: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TelaHistorico())),
+          ),
       ],
     );
   }
 }
 
+/// Login só do eTICKET (para quem pulou no começo, ou pelas Configurações). Ao concluir, lê saldo e cardápio.
+void conectarEticket(BuildContext context) {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => TelaLogin(
+        etapas: const [Sistema.eticket],
+        aoConcluir: (rota) {
+          Navigator.of(rota).pop();
+          RepositorioRu.instancia.atualizar();
+        },
+      ),
+    ),
+  );
+}
 
 /// Cartão azul com o saldo. Usado na Início (botões lado a lado) e na aba RU (empilhados).
 class CartaoSaldo extends StatelessWidget {
@@ -149,6 +177,34 @@ class CartaoSaldo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Sessao.instancia,
+      builder: (context, _) => Sessao.instancia.conectado(Sistema.eticket) ? _comSaldo(context) : _semEticket(context),
+    );
+  }
+
+  /// Quem pulou o eTICKET no login: o cartão explica e oferece conectar.
+  Widget _semEticket(BuildContext context) {
+    final c = context.cores;
+    return Cartao(
+      cor: c.primaria,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('eTICKET não conectado', style: AppTexto.tituloCartao.copyWith(color: c.sobrePrimaria)),
+          const SizedBox(height: 4),
+          Text(
+            'Conecte para ver o saldo, o QR de entrada e o cardápio do RU.',
+            style: AppTexto.apoio.copyWith(color: c.sobrePrimariaSuave),
+          ),
+          const SizedBox(height: 14),
+          BotaoDestaque(texto: 'Conectar eTICKET', icone: Icons.login_rounded, aoTocar: () => conectarEticket(context)),
+        ],
+      ),
+    );
+  }
+
+  Widget _comSaldo(BuildContext context) {
     final c = context.cores;
     final mostrarQr = BotaoDestaque(
       texto: compacto ? 'Mostrar QR' : 'Mostrar QR de entrada',
@@ -172,10 +228,7 @@ class CartaoSaldo extends StatelessWidget {
               final ru = RepositorioRu.instancia;
               final hora = ru.atualizadoEm;
               if (ru.saldo == null) {
-                return Text(
-                  'Saldo ainda não lido',
-                  style: AppTexto.tituloCartao.copyWith(color: c.sobrePrimaria),
-                );
+                return Text('Saldo ainda não lido', style: AppTexto.tituloCartao.copyWith(color: c.sobrePrimaria));
               }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

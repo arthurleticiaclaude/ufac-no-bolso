@@ -56,23 +56,26 @@ class TelaInicio extends StatelessWidget {
     return ListaDaTela(
       aoAtualizar: () => _atualizar(context),
       children: [
-        CabecalhoTela(
-          titulo: identificacao == null ? 'Olá' : 'Olá, ${identificacao.primeiroNome}',
-          sobretitulo: formatarData(agora),
-          acoes: [
-            BotaoRedondo(
-              icone: Icons.notifications_rounded,
-              descricao: 'Notificações',
-              aoTocar: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const TelaSiteOficial(titulo: 'Avisos do RU', endereco: urlAvisosRu),
+        cabecalhoComFaixas(
+          context,
+          agora,
+          CabecalhoTela(
+            titulo: identificacao == null ? 'Olá' : 'Olá, ${identificacao.primeiroNome}',
+            sobretitulo: formatarData(agora),
+            acoes: [
+              BotaoRedondo(
+                icone: Icons.notifications_rounded,
+                descricao: 'Notificações',
+                aoTocar: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const TelaSiteOficial(titulo: 'Avisos do RU', endereco: urlAvisosRu),
+                  ),
                 ),
               ),
-            ),
-            BotaoRedondo(icone: Icons.menu_rounded, descricao: 'Menu', aoTocar: () => abrirMenu(context)),
-          ],
+              BotaoRedondo(icone: Icons.menu_rounded, descricao: 'Menu', aoTocar: () => abrirMenu(context)),
+            ],
+          ),
         ),
-        ...faixasDaInicio(context, agora),
         if (identificacao != null)
           _CartaoIdentificacao(identificacao: identificacao, matricula: portal.matricula)
         else if (portal.carregando)
@@ -90,7 +93,9 @@ class TelaInicio extends StatelessWidget {
           Cartao(
             child: EstadoVazio(
               icone: Icons.badge_rounded,
-              titulo: 'Ainda não li seus dados do Portal',
+              titulo: Sessao.instancia.conectado(Sistema.portal)
+                  ? 'Ainda não li seus dados do Portal'
+                  : 'Portal do Aluno não conectado',
               texto: 'Entre no Portal do Aluno para ver nome, curso e horários.',
               acao: BotaoContorno(
                 texto: 'Entrar no Portal',
@@ -375,62 +380,60 @@ class _LinhaAtividade extends StatelessWidget {
   }
 }
 
-/// Faixas de aviso do topo da Início (sessão do eTICKET, versão nova, feriado). Também na Início do professor.
-List<Widget> faixasDaInicio(BuildContext context, DateTime agora) => [
-    ListenableBuilder(
-      listenable: Sessao.instancia,
-      builder: (context, _) {
-        // O portal cai em menos de 1 hora; só o eTICKET merece aviso.
-        if (!Sessao.instancia.expirados.contains(Sistema.eticket)) return const SizedBox.shrink();
-        return FaixaAviso(
-          icone: Icons.history_toggle_off_rounded,
-          texto: 'Sua sessão terminou. Mostrando os dados salvos.',
-          acao: 'Entrar de novo',
-          aoTocar: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => TelaLogin(
-                etapas: const [Sistema.eticket],
-                aoConcluir: (rota) {
-                  Navigator.of(rota).pop();
-                  RepositorioRu.instancia.atualizar();
-                },
-              ),
-            ),
-          ),
-        );
-      },
-    ),
-    ListenableBuilder(
-      listenable: Atualizacoes.instancia,
+/// Cabeçalho da Início com as faixas de aviso logo abaixo (sessão do eTICKET, versão nova,
+/// feriado). Fica tudo num item só da lista: sem aviso, não sobra espaço vazio. Também na
+/// Início do professor.
+Widget cabecalhoComFaixas(BuildContext context, DateTime agora, Widget cabecalho) => ListenableBuilder(
+      listenable: Listenable.merge([Sessao.instancia, Atualizacoes.instancia, Preferencias.instancia]),
       builder: (context, _) {
         final atualizacoes = Atualizacoes.instancia;
-        if (atualizacoes.nova == null) return const SizedBox.shrink();
-        return FaixaAviso(
-          icone: Icons.system_update_rounded,
-          texto: atualizacoes.baixando ? 'Baixando a nova versão…' : 'Nova versão disponível',
-          acao: atualizacoes.baixando ? null : 'Atualizar',
-          aoTocar: atualizacoes.baixando
-              ? null
-              : () async {
-                  final mensageiro = ScaffoldMessenger.of(context);
-                  if (!await atualizacoes.baixarEInstalar()) {
-                    mensageiro.showSnackBar(
-                      const SnackBar(content: Text('Não consegui baixar a nova versão agora.')),
-                    );
-                  }
-                },
+        final feriado = Preferencias.instancia.avisarFeriados ? avisoFeriado(agora) : null;
+        final faixas = <Widget>[
+          // O portal cai em menos de 1 hora; só o eTICKET merece aviso.
+          if (Sessao.instancia.expirados.contains(Sistema.eticket))
+            FaixaAviso(
+              icone: Icons.history_toggle_off_rounded,
+              texto: 'Sua sessão terminou. Mostrando os dados salvos.',
+              acao: 'Entrar de novo',
+              aoTocar: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => TelaLogin(
+                    etapas: const [Sistema.eticket],
+                    aoConcluir: (rota) {
+                      Navigator.of(rota).pop();
+                      RepositorioRu.instancia.atualizar();
+                    },
+                  ),
+                ),
+              ),
+            ),
+          if (atualizacoes.nova != null)
+            FaixaAviso(
+              icone: Icons.system_update_rounded,
+              texto: atualizacoes.baixando ? 'Baixando a nova versão…' : 'Nova versão disponível',
+              acao: atualizacoes.baixando ? null : 'Atualizar',
+              aoTocar: atualizacoes.baixando
+                  ? null
+                  : () async {
+                      final mensageiro = ScaffoldMessenger.of(context);
+                      if (!await atualizacoes.baixarEInstalar()) {
+                        mensageiro.showSnackBar(
+                          const SnackBar(content: Text('Não consegui baixar a nova versão agora.')),
+                        );
+                      }
+                    },
+            ),
+          if (feriado != null) FaixaAviso(icone: Icons.event_rounded, texto: '${feriado.titulo}\n${feriado.texto}'),
+        ];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            cabecalho,
+            for (final f in faixas) ...[const SizedBox(height: AppMedidas.entreCartoes), f],
+          ],
         );
       },
-    ),
-    ListenableBuilder(
-      listenable: Preferencias.instancia,
-      builder: (context, _) {
-        final aviso = Preferencias.instancia.avisarFeriados ? avisoFeriado(agora) : null;
-        if (aviso == null) return const SizedBox.shrink();
-        return FaixaAviso(icone: Icons.event_rounded, texto: '${aviso.titulo}\n${aviso.texto}');
-      },
-    ),
-    ];
+    );
 
 /// "Próxima refeição", que abre a aba RU.
 Widget linhaProximaRefeicao(Refeicao refeicao, VoidCallback abrirRu) => ListenableBuilder(

@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ufac_no_bolso/data/academico.dart';
+import 'package:ufac_no_bolso/data/biblioteca.dart';
+import 'package:ufac_no_bolso/data/repositorio_biblioteca.dart';
 import 'package:ufac_no_bolso/data/repositorio_portal.dart';
 import 'package:ufac_no_bolso/data/repositorio_ru.dart';
 import 'package:ufac_no_bolso/screens/boas_vindas.dart';
@@ -62,4 +64,28 @@ void main() {
     testWidgets('inicio ${t.key}', (tester) => foto(tester, const Casca(), t.value, 'inicio_${t.key}'));
   }
   testWidgets('boas-vindas', (tester) => foto(tester, const TelaBoasVindas(), AppTema.claro, 'boas_vindas'));
+
+  for (final t in {'claro': AppTema.claro, 'escuro': AppTema.escuro}.entries) {
+    testWidgets('biblioteca aluno ${t.key}', (tester) async {
+      final bib = RepositorioBiblioteca.instancia;
+      bib.historicoLidoEm = DateTime.now();
+      bib.historico = [
+        EmprestimoHistorico(titulo: 'Curso de direito civil de exemplo: parte geral', retirada: DateTime(2026, 11, 3)),
+        EmprestimoHistorico(
+          titulo: 'Manual fictício de contratos',
+          retirada: DateTime(2026, 9, 20),
+          devolucao: DateTime(2026, 9, 30),
+        ),
+      ];
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 2.625;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MaterialApp(debugShowCheckedModeBanner: false, theme: t.value, home: const Casca()));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.tap(find.text('Biblioteca').last);
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/biblioteca_${t.key}.png'));
+    });
+  }
 }

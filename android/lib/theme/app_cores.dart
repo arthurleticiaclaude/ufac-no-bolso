@@ -81,36 +81,41 @@ class AppCores extends ThemeExtension<AppCores> {
     perigoFundo: Color(0xFF3A1512),
   );
 
-  // Professores: o azul vira vermelho. Como o vermelho já é a cor do app, "perigo" vira laranja.
-  // Contraste conferido (AA): branco no cartão 6,5 (claro) e 9,1 (escuro); aba ativa 5,6 e 8,3.
+  // Professores: o azul vira o âmbar da Ufac (o mesmo do botão Mostrar QR do aluno).
+  // O âmbar é claro, então o texto sobre ele é escuro, e o botão de destaque, que no aluno é
+  // âmbar, vira escuro para não sumir no cartão. Perigo continua o vermelho de sempre.
+  // Contraste AA conferido em test/contraste_test.dart.
   static final professorClaro = _comPrimaria(
     claro,
-    primaria: const Color(0xFFB3261E),
-    sobrePrimariaSuave: const Color(0xFFF9D6D3),
-    navAtivo: const Color(0xFFB3261E),
-    navAtivoFundo: const Color(0xFFFCE8E6),
-    perigo: const Color(0xFFC4320A),
-    perigoFundo: const Color(0xFFFFF0EA),
+    primaria: const Color(0xFFF2A516),
+    sobrePrimaria: const Color(0xFF1A1300),
+    sobrePrimariaSuave: const Color(0xFF4D3300),
+    destaque: const Color(0xFF1A1300),
+    sobreDestaque: const Color(0xFFFFFFFF),
+    navAtivo: const Color(0xFF8A5300),
+    navAtivoFundo: const Color(0xFFFFF1D6),
   );
 
   static final professorEscuro = _comPrimaria(
     escuro,
-    primaria: const Color(0xFF8C1D18),
-    sobrePrimariaSuave: const Color(0xFFF6D3CF),
-    navAtivo: const Color(0xFFFFB4AB),
-    navAtivoFundo: const Color(0xFF47201D),
-    perigo: const Color(0xFFFF9C66),
-    perigoFundo: const Color(0xFF3B1D0E),
+    primaria: const Color(0xFFF5B23A),
+    sobrePrimaria: const Color(0xFF1A1300),
+    sobrePrimariaSuave: const Color(0xFF4D3300),
+    destaque: const Color(0xFF1A1300),
+    sobreDestaque: const Color(0xFFFFFFFF),
+    navAtivo: const Color(0xFFF8C76A),
+    navAtivoFundo: const Color(0xFF3A2A0A),
   );
 
   static AppCores _comPrimaria(
     AppCores base, {
     required Color primaria,
+    required Color sobrePrimaria,
     required Color sobrePrimariaSuave,
+    required Color destaque,
+    required Color sobreDestaque,
     required Color navAtivo,
     required Color navAtivoFundo,
-    required Color perigo,
-    required Color perigoFundo,
   }) =>
       AppCores(
         fundo: base.fundo,
@@ -120,18 +125,18 @@ class AppCores extends ThemeExtension<AppCores> {
         borda: base.borda,
         chrome: base.chrome,
         primaria: primaria,
-        sobrePrimaria: base.sobrePrimaria,
+        sobrePrimaria: sobrePrimaria,
         sobrePrimariaSuave: sobrePrimariaSuave,
-        destaque: base.destaque,
-        sobreDestaque: base.sobreDestaque,
+        destaque: destaque,
+        sobreDestaque: sobreDestaque,
         chipFundo: base.chipFundo,
         chipTexto: base.chipTexto,
         navAtivo: navAtivo,
         navAtivoFundo: navAtivoFundo,
         verde: base.verde,
         verdeFundo: base.verdeFundo,
-        perigo: perigo,
-        perigoFundo: perigoFundo,
+        perigo: base.perigo,
+        perigoFundo: base.perigoFundo,
       );
 
   @override

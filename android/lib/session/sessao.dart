@@ -33,6 +33,36 @@ class Sessao extends ChangeNotifier {
   final Set<Sistema> _expirados = {};
   Set<Sistema> get expirados => _expirados;
 
+  /// Sistemas que a pessoa escolheu não conectar (ex.: só usa o RU, ou não usa o RU).
+  /// O app não lê nada deles e mostra um botão "Conectar" no lugar dos dados.
+  static const _chavePulados = 'sistemas_pulados';
+  final Set<Sistema> _pulados = {};
+
+  bool conectado(Sistema sistema) => !_pulados.contains(sistema);
+
+  Future<void> carregarPulados() async {
+    final salvo = await _cofre.read(key: _chavePulados) ?? '';
+    _pulados
+      ..clear()
+      ..addAll(Sistema.values.where((s) => salvo.split(',').contains(s.name)));
+  }
+
+  Future<void> _gravarPulados() => _cofre.write(key: _chavePulados, value: _pulados.map((s) => s.name).join(','));
+
+  Future<void> pular(Sistema sistema) async {
+    _pulados.add(sistema);
+    _expirados.remove(sistema);
+    await _gravarPulados();
+    notifyListeners();
+  }
+
+  /// Chamado a cada login que deu certo naquele sistema.
+  Future<void> conectar(Sistema sistema) async {
+    if (!_pulados.remove(sistema)) return;
+    await _gravarPulados();
+    notifyListeners();
+  }
+
   Future<bool> loginConcluido() async => await _cofre.read(key: _chaveLogin) == 'sim';
 
   Future<void> concluirLogin() async {
@@ -55,7 +85,8 @@ class Sessao extends ChangeNotifier {
 
   /// Roda ao abrir o app. Só o eTICKET: traz saldo e QR. A sessão do portal cai em menos
   /// de 1 hora, então ela só é conferida quando alguma tela precisa dele.
-  Future<PaginaLida> verificar() => lerEMarcar(Sistema.eticket);
+  Future<PaginaLida> verificar() async =>
+      conectado(Sistema.eticket) ? lerEMarcar(Sistema.eticket) : const PaginaLida(ResultadoVerificacao.semResposta);
 
   /// Apaga sessão, número do QR e tudo que está no armazenamento seguro deste celular.
   Future<void> sair() async {
@@ -63,6 +94,7 @@ class Sessao extends ChangeNotifier {
     await _cofre.deleteAll(); // inclui CPF e senha do login automático
     Credenciais.instancia.limparMemoria();
     _expirados.clear();
+    _pulados.clear();
     notifyListeners();
   }
 }
