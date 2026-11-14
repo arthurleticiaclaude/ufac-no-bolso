@@ -28,7 +28,11 @@ export async function recente(chave, intervalo = INTERVALO_MIN) {
 
 // ---------- RU ----------
 
+// Sem eTICKET (entrou só com o Portal): nada é pedido às páginas logadas, nem login automático.
+const semEticket = async () => (await ler('semEticket')) === true;
+
 export async function atualizarRu() {
+  if (await semEticket()) return null;
   const html = await lerPagina('eticket', caminhos.eticketInicio);
   if (html === null) return null;
   const dados = lerEticketInicio(html);
@@ -41,7 +45,8 @@ export async function atualizarRu() {
 export async function atualizarCardapio({ forcar = false } = {}) {
   const atual = await ler('cardapio');
   if (!forcar && !cardapioPendente(atual, new Date())) return atual;
-  const html = await lerPagina('eticket', caminhos.eticketCardapio);
+  // Sem eTICKET, vai direto à página pública do cardápio (não pede login).
+  const html = (await semEticket()) ? null : await lerPagina('eticket', caminhos.eticketCardapio);
   let textos = html === null ? null : lerEticketCardapio(html);
   let fonte = 'logada';
   if (!textos) {
@@ -66,6 +71,7 @@ export async function atualizarCardapio({ forcar = false } = {}) {
 }
 
 export async function atualizarHistorico() {
+  if (await semEticket()) return null;
   const [credito, refeicoes] = await Promise.all([
     lerPagina('eticket', caminhos.eticketHistorico),
     lerPagina('eticket', caminhos.eticketHistoricoRefeicoes),

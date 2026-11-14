@@ -3,7 +3,7 @@ import { atualizarNotas } from '../lib/dados.js';
 import { LIMITE_FALTAS, situacaoApresentavel, situacaoFaltas, totalDaNota } from '../lib/dominio/academico.js';
 import { rotuloAtualizado } from '../lib/dominio/formatos.js';
 import { barraCompacta, botaoRedondo, cabecalho, esqueleto, html, montar, remontar, puxarParaAtualizar, vazio } from '../ui/componentes.js';
-import { expirado, faixaExpirada, faixaFalha, fraseDeFalha } from './comum.js';
+import { avisoSemEticket, expirado, faixaExpirada, faixaFalha, fraseDeFalha } from './comum.js';
 
 function blocoFaltas(d) {
   const s = situacaoFaltas(d.faltas, { cargaHoraria: null, permitidasSemCarga: LIMITE_FALTAS });
@@ -22,6 +22,7 @@ export default async function notas(tela, { ir, acoes }) {
     const n = await ler('notas');
     remontar(tela.querySelector('.pilha'), html`
       ${cabecalho({ titulo: 'Notas', sub: n ? `${n.semestre} · ${rotuloAtualizado(n.lidoEm)}` : 'Semestre atual', acoes: botaoRedondo('menu', 'Menu', 'menu') })}
+      ${await avisoSemEticket()}
       ${(await expirado('portal')) ? faixaExpirada('portal') : ''}
       ${falha ? faixaFalha(falha) : ''}
       ${!n

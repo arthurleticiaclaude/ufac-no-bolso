@@ -27,6 +27,7 @@ export default async function configuracoes(tela, { voltar, ir, perfil, acoes })
     const permitido = pushOk && Notification.permission === 'granted';
     const sozinho = await loginAutomaticoLigado();
     const senhaSalva = await temSalvas();
+    const semEticket = (await ler('semEticket')) === true;
     montar(tela.querySelector('.pilha'), html`
       ${cabecalho({ titulo: 'Configurações', acoes: botaoRedondo('voltar', 'Voltar', 'voltar') })}
 
@@ -43,6 +44,7 @@ export default async function configuracoes(tela, { voltar, ir, perfil, acoes })
       <section class="cartao vidro lista" style="padding:4px 0">
         <div style="padding:10px 16px 0"><h2 style="margin:0">Login</h2></div>
         ${interruptor('loginAutomatico', sozinho, 'Entrar sozinho quando a sessão cair', senhaSalva ? 'CPF e senha cifrados só neste iPhone; só vão para a Ufac' : 'Vale depois de entrar uma vez com a chave ligada')}
+        ${semEticket ? item({ icone: 'ru', titulo: 'Conectar o eTICKET do RU', sub: 'Você entrou só com o Portal. Conecte para ver saldo, QR e histórico.', acao: 'conectar-eticket' }) : ''}
         ${senhaSalva ? item({ icone: 'cadeado', titulo: 'Esquecer senha salva', sub: 'Apaga o CPF e as senhas deste iPhone', acao: 'esquecer-senha' }) : ''}
       </section>
 

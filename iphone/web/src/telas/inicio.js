@@ -10,7 +10,7 @@ import { cardapioValeEm, itensDoCardapio, proximaRefeicao } from '../lib/dominio
 import { atualizarSelo, lerPrefs, sincronizarAgenda } from '../lib/push.js';
 import { URL_RECARGA } from '../lib/config.js';
 import { avisar, barraCompacta, botaoRedondo, cabecalho, esqueleto, faixa, html, ic, montar, puxarParaAtualizar, remontar, vazio } from '../ui/componentes.js';
-import { escolherFoto, expirado, faixaExpirada, faixaFalha, fotoOuIniciais, fraseDeFalha } from './comum.js';
+import { avisoSemEticket, escolherFoto, expirado, semEticket, faixaExpirada, faixaFalha, fotoOuIniciais, fraseDeFalha } from './comum.js';
 import { abrirQr } from './qr.js';
 
 export default async function inicio(tela, { ir, acoes }) {
@@ -38,6 +38,7 @@ export default async function inicio(tela, { ir, acoes }) {
     const itens = cardapioValeEm(cardapio, agora) ? itensDoCardapio(cardapio.textos[refeicao.id]) : [];
     const atividades = classroom ? atividadesDaSemana(classroom.atividades, agora) : [];
     const nome = ident?.nome ?? '';
+    const semRu = await semEticket();
 
     remontar(tela.querySelector('.pilha'), html`
       ${cabecalho({
@@ -46,6 +47,7 @@ export default async function inicio(tela, { ir, acoes }) {
         acoes: html`${botaoRedondo('sino', 'Avisos', 'avisos')}${botaoRedondo('menu', 'Menu', 'menu')}`,
       })}
       ${feriado ? faixa({ icone: 'calendario', titulo: feriado.titulo, texto: feriado.texto }) : ''}
+      ${await avisoSemEticket()}
       ${(await expirado('eticket')) ? faixaExpirada('eticket') : ''}
       ${(await expirado('portal')) ? faixaExpirada('portal') : ''}
       ${await falhaVisivel()}
@@ -71,10 +73,14 @@ export default async function inicio(tela, { ir, acoes }) {
 
       <section class="cartao vidro tingido" aria-label="RU">
         <div class="rotulo">Saldo no RU</div>
-        ${ru ? html`<div class="saldo">${formatarMoeda(ru.saldo)}</div><div class="apoio">${rotuloAtualizado(ru.lidoEm, agora)}</div>` : carregando ? html`<div class="esqueleto" style="height:44px;width:55%;margin:8px 0;opacity:.4"></div>` : html`<div class="saldo">—</div>`}
+        ${semRu
+          ? html`<div class="saldo">—</div><div class="apoio">eTICKET não conectado</div>`
+          : ru ? html`<div class="saldo">${formatarMoeda(ru.saldo)}</div><div class="apoio">${rotuloAtualizado(ru.lidoEm, agora)}</div>` : carregando ? html`<div class="esqueleto" style="height:44px;width:55%;margin:8px 0;opacity:.4"></div>` : html`<div class="saldo">—</div>`}
         <div class="par-botoes">
-          <button class="botao acento tocavel" data-acao="qr">${ic('qr')} Mostrar QR</button>
-          <a class="botao contorno tocavel" href="${URL_RECARGA}" target="_blank" rel="noopener">${ic('mais')} Recarregar</a>
+          ${semRu
+            ? html`<button class="botao acento tocavel" data-acao="conectar-eticket">${ic('ru')} Conectar o eTICKET</button>`
+            : html`<button class="botao acento tocavel" data-acao="qr">${ic('qr')} Mostrar QR</button>`}
+          ${semRu ? '' : html`<a class="botao contorno tocavel" href="${URL_RECARGA}" target="_blank" rel="noopener">${ic('mais')} Recarregar</a>`}
         </div>
       </section>
 
@@ -125,7 +131,7 @@ export default async function inicio(tela, { ir, acoes }) {
     falhas = {};
     const tarefas = [];
     // Ao abrir, só o eTICKET é conferido; o Portal (sessão curta) só quando falta dado.
-    if (forcar || !(await recente('ru'))) tarefas.push(['o eTICKET', 'ru', atualizarRu]);
+    if (!(await semEticket()) && (forcar || !(await recente('ru')))) tarefas.push(['o eTICKET', 'ru', atualizarRu]);
     tarefas.push(['o eTICKET', 'cardapio', () => atualizarCardapio({ forcar })]);
     if (forcar || !(await ler('identificacao'))) tarefas.push(['o Portal', 'identificacao', atualizarIdentificacao]);
     if (forcar || !(await ler('horarios'))) tarefas.push(['o Portal', 'horarios', atualizarHorarios]);

@@ -36,8 +36,27 @@ export const faixaExpirada = (sistema) =>
   });
 
 export async function expirado(sistema) {
+  if (sistema === 'eticket' && (await semEticket())) return false; // nunca entrou no eTICKET: o aviso é outro
   if (sistema !== 'eticket') pedeSenhaNova = (await ler('portalPedeSenha')) === true;
   return ((await ler('expirados')) ?? []).includes(sistema);
+}
+
+export const semEticket = async () => (await ler('semEticket')) === true;
+
+/**
+ * Aviso das abas para quem entrou só com o Portal. Discreto (uma faixa, do tamanho das outras), mas na cor
+ * primária, para chamar a atenção. O toque leva ao login do eTICKET; ao conectar, o aviso some sozinho.
+ */
+export async function avisoSemEticket() {
+  if (!(await semEticket())) return '';
+  return faixa({
+    icone: 'ru',
+    titulo: 'Conecte o eTICKET do RU',
+    texto: 'Para ver o saldo, o QR de entrada e o histórico do RU.',
+    tipo: 'eticket',
+    acao: 'conectar-eticket',
+    rotuloAcao: 'Conectar',
+  });
 }
 
 /** Foto de perfil: escolhida da galeria, recortada em quadrado e reduzida a 512 px. Fica só no iPhone. */

@@ -89,6 +89,7 @@ export async function entrar(perfil, cpf, senha, { etapa = 'ambos', aoProgredir 
     aoProgredir('eTICKET do RU');
     await entrarNoEticket(cpf, senha);
     if (lembrar) await guardar('eticket', cpf, senha);
+    await apagar('semEticket'); // conectou o eTICKET: some o aviso das abas
   }
   await gravar('perfil', perfil);
   if (concluir) await gravar('loginConcluido', true);
@@ -126,6 +127,18 @@ function reentrar(sistema) {
 definirReentrada(reentrar);
 
 export const loginConcluido = async () => (await ler('loginConcluido')) === true;
+
+/** true quando a pessoa entrou só com o Portal (ainda sem acesso ao eTICKET). O app não pede nada ao eTICKET logado. */
+export const semEticket = async () => (await ler('semEticket')) === true;
+
+/** Conclui o primeiro login só com o Portal (etapa 1 já feita). O eTICKET pode ser conectado depois, em qualquer aba. */
+export async function concluirSemEticket() {
+  await gravar('perfil', 'aluno');
+  await gravar('semEticket', true);
+  await marcarExpirado('eticket', false);
+  await gravar('loginConcluido', true);
+  registrar('login', { sistema: 'eticket', resultado: 'continuou sem o eTICKET' });
+}
 
 /** Apaga sessão, cache, número do QR e foto deste iPhone. */
 export async function sair() {

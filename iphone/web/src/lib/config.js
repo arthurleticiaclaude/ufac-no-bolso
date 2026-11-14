@@ -7,7 +7,7 @@ export const CONTATO_EMAIL = import.meta.env?.VITE_CONTATO_EMAIL ?? '';
 /** Número com DDI e DDD, só dígitos (ex.: 5568...). Vazio = sem botão de WhatsApp direto. */
 export const CONTATO_WHATSAPP = import.meta.env?.VITE_CONTATO_WHATSAPP ?? '';
 /** Igual ao número da release no GitHub ("UFAC+ iPhone 1.2" → '1.2'). Sobe junto com cada release nova. */
-export const VERSAO = '1.3';
+export const VERSAO = '1.4';
 
 export const URL_RECARGA = 'https://sistemas.ufac.br/eticket/valorPaga/';
 export const URL_PORTAL_ALUNO = 'https://portal.ufac.br/aluno/index.action';

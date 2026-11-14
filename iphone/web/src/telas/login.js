@@ -1,11 +1,11 @@
 import { apagar, ler } from '../lib/armazenamento.js';
 import { SemConexao } from '../lib/api.js';
-import { ErroLogin, ErroTrocarSenha, entrar } from '../lib/sessao.js';
+import { ErroLogin, ErroTrocarSenha, concluirSemEticket, entrar } from '../lib/sessao.js';
 import { definirLigado, ligado as loginAutomaticoLigado } from '../lib/credenciais.js';
 import { registrar } from '../lib/registro.js';
 import { cpfFormatado } from '../lib/regras.js';
 import { aplicarAparencia } from '../main.js';
-import { botaoRedondo, cabecalho, faixa, html, ic, montar } from '../ui/componentes.js';
+import { botaoRedondo, cabecalho, confirmar, faixa, html, ic, montar } from '../ui/componentes.js';
 
 // Portal e eTICKET são servidores diferentes e podem ter senhas diferentes. Por isso o login tem
 // uma etapa (e um formulário) para cada um. O Chaves do iCloud guarda por (site, usuário): com o
@@ -65,6 +65,27 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
   // aceitaria qualquer senha (e o Safari ofereceria salvar a senha errada no Chaves).
   if (!relogin) await apagar('sessao');
 
+  // Quem ainda não tem acesso ao eTICKET (ou não consegue entrar nele) segue só com o Portal, que continua
+  // obrigatório. A etapa 1 já foi feita quando este botão aparece.
+  let enviando = false; // um login em andamento não pode correr junto com o "Continuar sem"
+  acoes['pular-eticket'] = async () => {
+    if (enviando) return;
+    const ok = await confirmar({
+      titulo: 'Continuar sem o eTICKET?',
+      texto: 'Você usa o Portal e o cardápio do RU normalmente. Saldo, QR de entrada e histórico ficam para quando conectar o eTICKET, o que dá para fazer depois em qualquer aba.',
+      sim: 'Continuar sem o eTICKET',
+    });
+    // A folha pode ter ficado aberta enquanto o login terminava e o app já foi para a Início.
+    if (!ok || enviando || !location.hash.startsWith('#/login')) return;
+    cpf = '';
+    await concluirSemEticket();
+    await aplicarAparencia();
+    ir('inicio', { substituir: true });
+  };
+
+  // Só na etapa do eTICKET do primeiro login (o Portal já entrou). No "Conectar" das abas, voltar basta.
+  const podePular = () => !relogin && etapas[indice] === 'eticket';
+
   function indicador() {
     if (etapas.length < 2) return '';
     return html`<ol class="etapas" aria-label="Etapas do login">
@@ -114,6 +135,11 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
           </form>
         </section>
         <div class="apoio" style="text-align:center">O Chaves do iCloud guarda as duas senhas separadas, com o nome de cada sistema. Com "Entrar sozinho" ligado, o UFAC+ também guarda, cifradas e só neste iPhone; elas só vão para a Ufac.</div>
+        ${podePular() ? html`<section class="cartao vidro pular-eticket">
+          <div class="forte">Ainda não tem acesso ao eTICKET?</div>
+          <div class="apoio">Entre só com o Portal e conecte o eTICKET depois.</div>
+          <button class="botao largo claro tocavel" style="margin-top:10px" data-acao="pular-eticket">Continuar sem o eTICKET</button>
+        </section>` : ''}
         <button class="botao largo claro tocavel" data-acao="relatar">${ic('info')} Problemas para entrar? Relatar</button>
       </div>`);
     ligar(sistema);
@@ -164,11 +190,13 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
       }
       botao.disabled = true;
       botao.textContent = 'Entrando…';
+      enviando = true;
       const ultima = indice === etapas.length - 1;
       try {
         await entrar(perfil, cpf, senha.value, { etapa: sistema === 'professor' ? 'portal' : sistema, concluir: ultima, lembrar });
         // Não limpar a senha antes de tirar o formulário da tela: o Safari usa isso para oferecer salvar.
         if (!ultima) {
+          enviando = false;
           indice++;
           desenhar();
           return;
@@ -177,6 +205,7 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
         await aplicarAparencia();
         ir('inicio', { substituir: true });
       } catch (falha) {
+        enviando = false;
         const texto = falha instanceof ErroLogin ? falha.message : falha instanceof SemConexao ? 'Sem conexão com a Ufac agora. Confira a internet e tente de novo.' : 'Algo deu errado ao entrar. Tente de novo.';
         if (!(falha instanceof ErroLogin) && !(falha instanceof SemConexao)) registrar('app', { erro: falha?.message ?? String(falha), onde: 'login', sistema });
         // Senha certa e mesmo assim não entra: o relato leva onde o login parou.
@@ -184,7 +213,9 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
           erro,
           falha instanceof ErroTrocarSenha
             ? faixa({ icone: 'cadeado', titulo: texto, texto: 'Sua senha está certa, mas venceu. Troque no site da Ufac e depois entre aqui com a senha nova.', acao: 'trocar-senha-portal', rotuloAcao: 'Abrir o site' })
-            : faixa({ icone: 'alerta', titulo: texto, texto: 'Se a senha está certa e o erro continua, relate.', tipo: 'perigo', acao: 'relatar', rotuloAcao: 'Relatar' }),
+            : podePular()
+              ? faixa({ icone: 'alerta', titulo: texto, texto: 'Sem acesso ao eTICKET agora? Dá para entrar só com o Portal e conectar depois.', tipo: 'perigo', acao: 'pular-eticket', rotuloAcao: 'Continuar sem' })
+              : faixa({ icone: 'alerta', titulo: texto, texto: 'Se a senha está certa e o erro continua, relate.', tipo: 'perigo', acao: 'relatar', rotuloAcao: 'Relatar' }),
         );
         botao.disabled = false;
         botao.textContent = s.botao;

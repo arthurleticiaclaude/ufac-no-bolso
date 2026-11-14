@@ -3,7 +3,7 @@ import { baixarRelatorio } from '../lib/dados.js';
 import { RELATORIOS } from '../lib/config.js';
 import { semestreCurto } from '../lib/dominio/academico.js';
 import { avisar, barraCompacta, botaoRedondo, cabecalho, html, ic, montar } from '../ui/componentes.js';
-import { fraseDeFalha } from './comum.js';
+import { avisoSemEticket, fraseDeFalha } from './comum.js';
 
 /** Visualizador em tela cheia, com o botão de compartilhar/salvar do iPhone. */
 function mostrarPdf(blob, arquivo, nome) {
@@ -49,8 +49,10 @@ async function compartilhar(blob, arquivo) {
 export default async function relatorios(tela, { ir, acoes }) {
   const ident = await ler('identificacao');
   const mais = await ler('urlMaisRelatorios');
+  const aviso = await avisoSemEticket();
   montar(tela, html`<div class="pilha entra">
     ${cabecalho({ titulo: 'Relatórios', sub: ident ? `${ident.curso} · ${ident.periodo}º período · ${semestreCurto(ident.semestre)}` : 'Portal do Aluno', acoes: botaoRedondo('menu', 'Menu', 'menu') })}
+    ${aviso}
     <section class="cartao vidro lista" style="padding:4px 0">
       ${RELATORIOS.map((r) => html`
         <div class="item">

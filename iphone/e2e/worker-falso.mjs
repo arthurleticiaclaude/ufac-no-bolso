@@ -60,6 +60,8 @@ createServer((req, res) => {
         estado.eticket = corpo.includes('csrfmiddlewaretoken=TOKEN_FALSO') && corpo.includes('password=senha-eticket');
         return estado.eticket ? responder(200, fixture('eticket_home.html'), `${base}/`) : responder(200, fixture('public/eticket_login.html'), `${base}/login/`);
       }
+      // Página pública do cardápio: abre sem login (é o que o app usa para quem entrou sem o eTICKET).
+      if (e === '/menuExterno/') return responder(200, fixture('eticket_menu.html'), base + e);
       if (e === '/login/' || !estado.eticket) return responder(200, fixture('public/eticket_login.html'), `${base}/login/?next=/eticket/`);
       const mapa = { '/': 'eticket_home.html', '/menu/': 'eticket_menu.html', '/historico/': 'eticket_historico.html', '/historico/refeicoes/': 'eticket_refeicoes.html' };
       if (mapa[e]) return responder(200, fixture(mapa[e]), base + e);

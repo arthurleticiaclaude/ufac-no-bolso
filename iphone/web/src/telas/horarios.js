@@ -5,7 +5,7 @@ import { DIAS, diaDaSemana, formatarHoraMin, rotuloAtualizado } from '../lib/dom
 import { aulasDoProfessor } from '../lib/dominio/professor.js';
 import { sincronizarAgenda } from '../lib/push.js';
 import { barraCompacta, botaoRedondo, cabecalho, esqueleto, html, montar, remontar, puxarParaAtualizar, vazio } from '../ui/componentes.js';
-import { faixaExpirada, faixaFalha, fraseDeFalha, expirado } from './comum.js';
+import { avisoSemEticket, faixaExpirada, faixaFalha, fraseDeFalha, expirado } from './comum.js';
 
 export default async function horarios(tela, { ir, perfil, acoes }) {
   let falha = '';
@@ -25,6 +25,7 @@ export default async function horarios(tela, { ir, perfil, acoes }) {
 
     remontar(tela.querySelector('.pilha'), html`
       ${cabecalho({ titulo: 'Horários', sub: dados ? rotuloAtualizado(dados.lidoEm, agora) : 'Semana', acoes: botaoRedondo('menu', 'Menu', 'menu') })}
+      ${professor ? '' : await avisoSemEticket()}
       ${(await expirado(professor ? 'professor' : 'portal')) && !dados ? faixaExpirada('portal') : ''}
       ${falha ? faixaFalha(falha) : ''}
       ${!aulas

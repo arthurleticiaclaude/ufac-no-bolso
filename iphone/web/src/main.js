@@ -119,6 +119,8 @@ async function renderizar() {
   // Valem em qualquer tela (faixas de erro, login), a menos que a tela tenha a sua.
   const globais = {
     relatar: () => ir(`relatar/${encodeURIComponent(nome)}`),
+    // Aviso "Conecte o eTICKET" (quem entrou só com o Portal): mesma etapa do login, sozinha.
+    'conectar-eticket': () => ir('login/eticket'),
     // A troca de senha é no site oficial, no Safari: o app nunca recebe a senha nova antes do login.
     'trocar-senha-portal': () => window.open(perfil === 'professor' ? URL_PORTAL_PROFESSOR : URL_PORTAL_ALUNO, '_blank', 'noopener'),
   };
