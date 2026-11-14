@@ -16,7 +16,7 @@ export default function boasVindas(tela, { ir, acoes }) {
         ? html`<a class="faixa tocavel" href="/instalar/">${ic('celular')}<div class="cresce"><div class="titulo">Instale na Tela de Início</div><div>Assim ele abre como app e pode avisar das aulas. Toque para ver como.</div></div></a>`
         : ''}
       <div class="cartao vidro pilha" style="gap:12px">
-        <div class="linha">${ic('cadeado')}<div><div class="forte">Sua senha não fica guardada</div><div class="apoio">Ela vai direto para os sites da Ufac só na hora de entrar.</div></div></div>
+        <div class="linha">${ic('cadeado')}<div><div class="forte">Sua senha só vai para a Ufac</div><div class="apoio">Se você quiser que o app entre sozinho, ela fica cifrada só neste iPhone.</div></div></div>
         <div class="linha">${ic('celular')}<div><div class="forte">Seus dados ficam no seu iPhone</div><div class="apoio">Notas, horários e saldo ficam salvos só aqui.</div></div></div>
       </div>
       <button class="botao largo tocavel" data-acao="aluno">${ic('escola')} Sou aluno</button>
