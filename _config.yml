@@ -1,4 +1,7 @@
 # O site (index.html e privacidade.html) é publicado pelo GitHub Pages a partir da raiz.
-# O código-fonte do iPhone fica fora do site.
+# O código-fonte dos apps e a documentação ficam fora do site.
 exclude:
   - iphone
+  - android
+  - docs
+  - CLAUDE.md

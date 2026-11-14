@@ -1,0 +1,51 @@
+# UFAC+ — Android (android/) e iPhone (iphone/), um repositório público.
+# ---- Dados reais e segredos: nunca commitar ----
+**/fixtures/raw/
+.env
+.env.*
+**/.env.json
+*.har
+.dev.vars
+CLAUDE.local.md
+
+# Chave de assinatura do APK e senhas dela
+*.keystore
+*.jks
+**/key.properties
+
+# Caminhos da máquina
+**/local.properties
+
+# Credenciais do Google / OAuth
+**/google-services.json
+**/GoogleService-Info.plist
+**/client_secret*.json
+**/credentials*.json
+**/service-account*.json
+*.p12
+*.pem
+
+# APKs e notas prontos para publicar (vão para as Releases)
+*.apk
+*.aab
+**/publicar/
+
+# ---- Flutter / Dart (android/) ----
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+*.iml
+.idea/
+.vscode/
+android/android/.gradle/
+android/android/captures/
+android/android/app/.cxx/
+
+# ---- Node / iPhone (iphone/) ----
+node_modules/
+dist/
+.wrangler/
+test-results/
+playwright-report/

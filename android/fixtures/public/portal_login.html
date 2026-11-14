@@ -1,0 +1,241 @@
+<!DOCTYPE HTML PUBLIC
+"-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+
+    <title>
+        Portal do Aluno -
+        UFAC -
+        Login</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <!-- resolve o problema de 'Conexão Reiniciada' quando o usuário fica muito tempo ocioso na página de login -->
+    <!-- a cada 5min vamos dar refresh -->
+    <meta http-equiv="refresh" content="300">
+
+    <link rel="shortcut icon" type="image/x-icon" href="/aluno/img/favicon.jpg"/>
+
+    <!-- CSS -->
+    <script type="text/javascript">/* Start adding global members. */</script>
+<script type="text/javascript">/* Finished adding global members. */</script>
+<script type="text/javascript">/* Start adding members resolved by '/bundles/templatelogin.css'. Bundle id is: '/bundles/templatelogin.css' */</script>
+<link rel="stylesheet" type="text/css" media="screen" href="/aluno/css/padrao.css?d=507924402" />
+<link rel="stylesheet" type="text/css" media="screen" href="/aluno/css/template/login.css?d=708628421" />
+<link rel="stylesheet" type="text/css" media="screen" href="/aluno/js/jquery/jquery-ui-1.8.16.custom/css/custom-theme/jquery-ui-1.8.16.custom.css?d=11145566" />
+<link rel="stylesheet" type="text/css" media="screen" href="/aluno/js/jquery/pnotify/jquery.pnotify.default.css?d=1793536844" />
+<link rel="stylesheet" type="text/css" media="screen" href="/aluno/js/jquery/pnotify/use for pines style icons/jquery.pnotify.default.icons.css?d=523843078" />
+<script type="text/javascript">/* Finished adding members resolved by /bundles/templatelogin.css */</script>
+<!-- JS -->
+    <script type="text/javascript">/* Start adding global members. */</script>
+<script type="text/javascript">/* Finished adding global members. */</script>
+<script type="text/javascript">/* Start adding members resolved by '/bundles/templatelogin.js'. Bundle id is: '/bundles/templatelogin.js' */</script>
+<script type="text/javascript" src="/aluno/js/jquery/jquery-ui-1.8.16.custom/js/jquery-1.6.2.min.js?d=1089473399" ></script>
+<script type="text/javascript" src="/aluno/js/jquery/jquery-ui-1.8.16.custom/js/jquery-ui-1.8.16.custom.min.js?d=1760458908" ></script>
+<script type="text/javascript" src="/aluno/js/jquery/pnotify/jquery.pnotify.min.js?d=1244280142" ></script>
+<script type="text/javascript" src="/aluno/js/login.js?d=150299292" ></script>
+<script type="text/javascript" src="/aluno/js/functions.js?d=295351348" ></script>
+<script type="text/javascript">/* Finished adding members resolved by /bundles/templatelogin.js */</script>
+<!-- TODO: após instalação em ambiente externo, colocar o googleanalytics -->
+    </head>
+<body>
+<noscript>
+    <div id="no-script">O JavaScript está desativado ou não é suportado pelo seu navegador. Para usar o Portal do Aluno adequadamente, ative o JavaScript alterando as opções do navegador e tente novamente.</div>
+</noscript>
+
+<div id="browser-outdated-and-not-ie" style="display: none;">
+</div>
+<script type="text/javascript">
+
+    var linkFirefox = 'http://www.mozilla.org/pt-BR/firefox/fx/';
+    var linkChrome = 'https://www.google.com/chrome/index.html?hl=pt-BR&brand=CHMB&utm_campaign=pt-_br&utm_source=pt-br-ha-latam-br-sk&utm_medium=ha';
+
+
+
+    if ( navigator.appName == "Microsoft Internet Explorer" ) {
+        montaDoisLinks();
+    } else {
+        var isChrome = navigator.userAgent.toLowerCase().indexOf( 'chrome' ) > -1;
+        var isFirefox = navigator.userAgent.toLowerCase().indexOf( 'firefox' ) > -1;
+
+        if ( isChrome ) {
+            var int = navigator.userAgent.toLowerCase().indexOf( 'chrome' );
+            var outdatedChrome = navigator.userAgent.substr( int + 7, 2 );
+            if ( parseInt( outdatedChrome, 100) < 19 ) {
+                montaLinkChrome();
+            }
+        } else if ( isFirefox ) {
+            var int = navigator.userAgent.toLowerCase().indexOf( 'firefox' );
+            var outdatedFirefox = navigator.userAgent.substr( int + 8, 2 );
+            if ( parseInt(outdatedFirefox, 100) < 12 ) {
+                montaLinkFirefox();
+            }
+        } else {
+            montaDoisLinks();
+        }
+    }
+    function montaLinkFirefox()
+    {
+        $( '#browser-outdated-and-not-ie' ).html( "Seu navegador estï¿½ desatualizado. Para atualiza-lo " +
+                "<a target='_blank' href='" + linkFirefox + "'>click aqui</a>! " +
+                "Ver os <a target='_blank' href='/aluno/login/requisitossistema.action' >Requisitos do sistema</a>!" );
+        $( '#browser-outdated-and-not-ie' ).show( "fast" );
+    }
+    function montaLinkChrome()
+    {
+        $( '#browser-outdated-and-not-ie' ).html( "Seu navegador estï¿½ desatualizado. Para atualiza-lo " +
+                "<a target='_blank' href='" + linkChrome + "'>click aqui</a>! " +
+                "Ver os <a target='_blank' href='/aluno/login/requisitossistema.action' >Requisitos do sistema</a>!" );
+        $( '#browser-outdated-and-not-ie' ).show( "fast" );
+    }
+    function montaDoisLinks()
+    {
+        $( '#browser-outdated-and-not-ie' ).html( "Para um melhor funcionamento utilize o " +
+                "<a target='_blank' href='" + linkFirefox + "'>Mozilla Firefox</a> ou " +
+                "<a target='_blank' href='" + linkChrome + "'>Google Chrome</a>. " +
+                "Ver os <a target='_blank' href='/aluno/login/requisitossistema.action' >Requisitos do sistema</a>!" );
+        $( '#browser-outdated-and-not-ie' ).show( "fast" );
+    }
+</script>
+<div id="topo-corpo">
+    <table cellpadding="0" cellspacing="0">
+        <tbody>
+        <tr>
+            <td>
+                <div id="topo">
+
+    <div id="logo-portal">
+        <img src="/aluno/img/logo_portal.png"
+             alt="Ir para a página inicial" title="Ir para a página inicial" class="cursor-pointer"
+             onclick="window.location = '/aluno/';"/>
+    </div>
+
+    <div id="instituicao">
+        <a href="http://www.ufac.br" title="Ir para o Site" target="_blank">
+
+UFAC</a>
+
+</div>
+
+</div>
+
+
+
+
+
+<div id="corpo-noticias" class="corner">
+
+    <div class="topo">
+        Últimas Notícias<a href="/aluno/feed.xml" title="Feed RSS de notícias do portal do aluno" target="_blank">
+            <img src="/aluno/img/feed-icon.png" alt=""/>
+        </a>
+    </div>
+
+    <div class="noticias">
+        <div class="noticia">
+                        <table cellpadding="1" cellspacing="1">
+                            <tbody>
+                            <tr>
+                                <td width="3%">
+                                    <img src="/aluno/img/newspaper.png" alt="">
+                                </td>
+                                <td>
+                                    <a href="/comunicacoes/publico/view.action?idNoticia=15661" title="Ver Notícia"
+                                       target="_blank">
+                                        <table cellspacing="0" cellpadding="0" style="width:auto;padding: 0;">
+                                            <tr>
+                                                <td>
+                                                    Regularização Cadastral Discente</td>
+                                                <td>
+                                                    </td>
+                                            </tr>
+                                        </table>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="3%"></td>
+                                <td colspan="2" class="informacao">
+                                    Quarta-feira, 21 de Outubro de 2026 00:00:00</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+</div>
+
+</td>
+            <td id="td-login" align="right">
+                <div id="corpo-login" align="right">
+    <div>
+        <form action="/aluno/j_security_check" method="POST">
+            <table align="center" cellpadding="0" cellspacing="0">
+                <tbody>
+                <tr>
+                    <td id="col1" colspan="2">
+                        Área Restrita</td>
+                </tr>
+                <tr>
+                    <td id="col2" colspan="2"></td>
+                </tr>
+                <tr>
+                    <td id="col3" colspan="2">
+                        Acesso ao Portal</td>
+                </tr>
+                <tr>
+                    <td class="col46" colspan="2">
+                        CPF</td>
+                </tr>
+                <tr>
+                    <td id="col5" colspan="2">
+                        <input type="text" id="j_username" name="j_username" size="30" style="width:200px;"
+                               >
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col46" colspan="2">
+                        Senha:</td>
+                </tr>
+                <tr>
+                    <td id="col7" colspan="2" style="padding-bottom:10px;">
+                        <input type="password" id="j_password" name="j_password" size="30" style="width:200px;">
+
+                        <a href="/usuario/publico/usuario/recuperacaosenha.action?br.com.asten.si.geral.web.spring.interceptors.AplicacaoWebChangeInterceptor.aplicacaoWeb=1" style="font-size:9px;">
+                            Esqueci minha senha</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="col8">
+                        <input class="button" type="submit" value="Entrar"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td id="Col9">
+                        <a href="/aluno/login/instrucoes.action" target="_blank">
+                            Instruções</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+
+    window.load = function()
+    {
+        $('#j_username').focus();
+    }
+
+</script><div id="rodape">
+    V.2.0.202306021048 - Copyright © 2023 <a href="http://www.avmb.com.br/" target="_blank">ASTEN</a>.
+    </div>
+</body>
+</html>
