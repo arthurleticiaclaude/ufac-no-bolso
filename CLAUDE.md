@@ -255,7 +255,7 @@ ufac_no_bolso/
 - **Nome no celular:** **UFAC+** (antes "UFAC no Bolso"). O identificador `io.github.ufacnobolso.ufac_no_bolso` **não muda nunca**, porque trocá-lo impede as atualizações por cima. A pasta do projeto e o repositório também mantêm o nome antigo.
 - **Dois perfis no mesmo APK:** aluno (azul, completo) e professor (vermelho, por enquanto só uma prévia). O perfil é escolhido nas boas-vindas.
 - **Stack:** Flutter 3.47.9, Dart 3.13, só Android (minSdk 24). Testado num moto g35 5G (Android 15) (o número de série do adb fica em `CLAUDE.local.md`).
-- **Comandos:** rodar sempre pelo atalho sem espaços **`C:\dev\flutter_sdk\bin\flutter`**.
+- **Comandos:** sempre de dentro de `android/` (`cd android`), pelo atalho sem espaços **`C:\dev\flutter_sdk\bin\flutter`**.
   - Testes: `flutter test --exclude-tags visual`
   - Prints dos temas: `flutter test test/visual_test.dart --update-goldens --tags visual` (saem em `test/goldens/`)
   - APK final: `flutter build apk --release --dart-define-from-file=.env.json`
@@ -371,3 +371,11 @@ ufac_no_bolso/
 - **Versões:** toda versão nova sobe `version` no `pubspec.yaml` (o número depois do `+` sempre cresce). Compila `--release` com `.env.json`, instala com `adb -s <serial> install -r` e registra a decisão em `docs/decisoes.md`.
 - **Compilações longas:** rodar em segundo plano. Só instalar no celular se compilou, e conferir travamentos com `logcat -b crash`.
 - **Publicar e decidir:** publicar no GitHub só com o "pode publicar" de Arthur. Perguntar quando algo for ambíguo, e não inventar dados (feriados, horários, labels do site).
+
+## 13. Bugs e features: GitHub Issues
+
+A lista única de bugs e features do UFAC+ (Android e iPhone) fica nas Issues de `ufac-plus/ufac-plus`. Etiquetas: `tipo:bug`/`tipo:feature`, `plataforma:android`/`plataforma:iphone`, `resolvido:android`/`resolvido:iphone` (feito numa plataforma só) e `prioridade:alta`.
+
+- Ao começar uma sessão no Android, rodar `gh issue list --repo ufac-plus/ufac-plus --label plataforma:android` e ler a issue (`gh issue view <n>`) antes de mexer no assunto.
+- Ao resolver: comentar com o commit (`gh issue comment <n> --body "Resolvido no Android em <commit>: <resumo>"`). Se a issue também tem `plataforma:iphone`, só pôr `resolvido:android` (`gh issue edit <n> --add-label resolvido:android`) e deixar aberta. Se é só do Android, ou o iPhone já tem `resolvido:iphone`, fechar.
+- Bug ou ideia nova: `gh issue create` com as etiquetas certas, só com o ok de Arthur. O repositório é público: nunca pôr CPF, matrícula, número do QR, cookies ou prints com dados reais.

@@ -158,3 +158,11 @@ Prints dos temas: `flutter test test/visual_test.dart --update-goldens --tags vi
   - Nada vai para log.
   - "Sair" (que apaga o cofre inteiro) e "Esquecer senha salva", nas Configurações, removem tudo.
 - O selo da tela de login muda conforme a chave: "a senha fica cifrada só neste celular" ou "sua senha não passa pelo app".
+
+## 2026-11-14: um repositório só, público, na organização ufac-plus
+- `ufac-plus/ufac-plus` (público) junta tudo: Releases, Issues, site do GitHub Pages, `android/`, `iphone/`, `docs/` e `CLAUDE.md`. Arthur e Matheus são donos da organização.
+- O código do Android entrou como uma foto atual, num commit só. O histórico privado fica arquivado em `ufac-plus/ufac-plus-antigo`, porque pode ter dados antigos.
+- Os APKs já instalados procuram atualização no endereço antigo (`arthurleticiaclaude/ufac-no-bolso`). O GitHub redireciona pelo número interno do repositório, por isso esse nome nunca pode ser recriado. Da 0.1.11 em diante, o app usa `ufac-plus/ufac-plus`.
+- Releases: `UFAC+ Android 0.1.x` (tag `v0.1.x`, sempre a Latest, com o `.apk`) e `UFAC+ iPhone 1.x` (tag `iphone-v1.x`, sempre `--latest=false`).
+- O site (`ufac-plus.github.io/ufac-plus`) mostra primeiro a versão do celular de quem abre (Android ou iPhone).
+- Commits no repositório público usam o e-mail anônimo do GitHub (`…@users.noreply.github.com`).
