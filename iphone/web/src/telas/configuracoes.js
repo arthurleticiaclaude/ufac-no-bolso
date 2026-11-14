@@ -5,6 +5,7 @@ import { ANTECEDENCIA_MIN, ativarPush, instalado, lerPrefs, sincronizarAgenda, s
 import { REFEICOES } from '../lib/dominio/refeicoes.js';
 import { formatarHoraMin } from '../lib/dominio/formatos.js';
 import { sair } from '../lib/sessao.js';
+import { definirLigado, esquecer as esquecerSenha, ligado as loginAutomaticoLigado, temSalvas } from '../lib/credenciais.js';
 import { aplicarAparencia } from '../main.js';
 import { avisar, botaoRedondo, cabecalho, confirmar, faixa, html, ic, item, montar, segmentos } from '../ui/componentes.js';
 import { escolherFoto, fotoOuIniciais } from './comum.js';
@@ -24,6 +25,8 @@ export default async function configuracoes(tela, { voltar, ir, perfil, acoes })
     const ident = await ler('identificacao');
     const pushOk = suportaPush() && instalado();
     const permitido = pushOk && Notification.permission === 'granted';
+    const sozinho = await loginAutomaticoLigado();
+    const senhaSalva = await temSalvas();
     montar(tela.querySelector('.pilha'), html`
       ${cabecalho({ titulo: 'Configurações', acoes: botaoRedondo('voltar', 'Voltar', 'voltar') })}
 
@@ -35,6 +38,12 @@ export default async function configuracoes(tela, { voltar, ir, perfil, acoes })
 
       <section class="cartao vidro"><h2>Aparência</h2>
         ${segmentos([{ id: 'sistema', nome: 'Sistema' }, { id: 'claro', nome: 'Claro' }, { id: 'escuro', nome: 'Escuro' }], prefs.tema, 'tema')}
+      </section>
+
+      <section class="cartao vidro lista" style="padding:4px 0">
+        <div style="padding:10px 16px 0"><h2 style="margin:0">Login</h2></div>
+        ${interruptor('loginAutomatico', sozinho, 'Entrar sozinho quando a sessão cair', senhaSalva ? 'CPF e senha cifrados só neste iPhone; só vão para a Ufac' : 'Vale depois de entrar uma vez com a chave ligada')}
+        ${senhaSalva ? item({ icone: 'cadeado', titulo: 'Esquecer senha salva', sub: 'Apaga o CPF e as senhas deste iPhone', acao: 'esquecer-senha' }) : ''}
       </section>
 
       <section class="cartao vidro lista" style="padding:4px 0">
@@ -79,6 +88,11 @@ export default async function configuracoes(tela, { voltar, ir, perfil, acoes })
     const chave = e.target.dataset?.chave;
     if (!chave) return;
     const ligado = e.target.checked;
+    if (chave === 'loginAutomatico') {
+      await definirLigado(ligado); // desligar apaga as senhas guardadas
+      avisar(ligado ? 'Ligado. Vale a partir do próximo login.' : 'Desligado. A senha salva foi apagada.');
+      return desenhar();
+    }
     await mudarPrefs((p) => {
       if (chave === 'feriados') p.feriados = ligado;
       else if (chave === 'aulas') p.avisos.aulas = ligado;
@@ -131,6 +145,13 @@ export default async function configuracoes(tela, { voltar, ir, perfil, acoes })
     for (const k of ['ru', 'cardapio', 'identificacao', 'horarios', 'notas', 'historico', 'classroom', 'professor', 'idInterno', 'urlMaisRelatorios', 'urlComunicacoes', 'diagnosticoPortal', 'registro']) await apagar(k);
     avisar('Dados apagados. Tudo será lido de novo.');
   };
+  acoes['esquecer-senha'] = async () => {
+    const ok = await confirmar({ titulo: 'Esquecer a senha salva?', texto: 'O app apaga o CPF e as senhas deste iPhone e para de entrar sozinho até você entrar de novo.', sim: 'Esquecer', perigo: true });
+    if (!ok) return;
+    await esquecerSenha();
+    avisar('Senha salva apagada.');
+    desenhar();
+  };
   acoes['desconectar-classroom'] = async () => {
     const ok = await confirmar({ titulo: 'Desconectar o Classroom?', texto: 'O app perde o acesso à sua conta do Google e apaga as atividades deste iPhone.', sim: 'Desconectar', perigo: true });
     if (!ok) return;
@@ -139,7 +160,7 @@ export default async function configuracoes(tela, { voltar, ir, perfil, acoes })
     desenhar();
   };
   acoes.sair = async () => {
-    const ok = await confirmar({ titulo: 'Sair da conta?', texto: 'Apaga a sessão, os dados salvos, o QR do RU e a foto deste iPhone.', sim: 'Sair', perigo: true });
+    const ok = await confirmar({ titulo: 'Sair da conta?', texto: 'Apaga a sessão, a senha salva, os dados salvos, o QR do RU e a foto deste iPhone.', sim: 'Sair', perigo: true });
     if (!ok) return;
     await sair();
     ir('boas-vindas', { substituir: true });

@@ -128,6 +128,34 @@ test('login em 2 etapas e telas do aluno', async ({ page }) => {
   await print(page, '07-qr');
 });
 
+test('Portal entra sozinho quando a sessão cai, e para quando a chave é desligada', async ({ page }) => {
+  const estado = await workerFalso(page);
+  const loginsDoPortal = async () => (await estado.pedidos()).filter((p) => p === 'POST /portal/aluno/j_security_check').length;
+  await page.goto('/#/login/aluno');
+  await expect(page.getByLabel('Entrar sozinho quando a sessão cair')).toBeChecked();
+  await entrar(page);
+  expect(await loginsDoPortal()).toBe(1);
+
+  // A sessão do Portal cai; o PDF abre mesmo assim, sem tela de login.
+  await page.request.get(`${WORKER}/__expirar-portal`);
+  await page.getByRole('link', { name: 'Relatórios' }).click();
+  await page.getByRole('button', { name: 'Visualizar Atestado de Matrícula' }).click();
+  await expect(page.locator('iframe[title="Atestado de Matrícula"]')).toBeVisible();
+  expect(await loginsDoPortal()).toBe(2);
+  await page.getByRole('button', { name: 'Fechar' }).click();
+
+  // Desligar a chave apaga a senha: com a sessão caída de novo, o app pede login.
+  await page.goto('/#/configuracoes');
+  await expect(page.getByRole('button', { name: /Esquecer senha salva/ })).toBeVisible();
+  await page.getByText('Entrar sozinho quando a sessão cair').click();
+  await expect(page.getByRole('button', { name: /Esquecer senha salva/ })).toBeHidden();
+  await page.request.get(`${WORKER}/__expirar-portal`);
+  await page.goto('/#/relatorios');
+  await page.getByRole('button', { name: 'Visualizar Atestado de Matrícula' }).click();
+  await expect(page.getByText('Senha do Portal do Aluno')).toBeVisible();
+  expect(await loginsDoPortal()).toBe(2);
+});
+
 test('modo escuro', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await workerFalso(page);

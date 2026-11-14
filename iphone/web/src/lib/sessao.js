@@ -1,6 +1,8 @@
 // Login nas duas etapas (Portal e eTICKET). Cada sistema tem a sua senha, que pode ser diferente.
-// A senha fica só na memória durante o login: vai pelo Worker direto para a Ufac e é esquecida.
-import { pedir, marcarExpirado } from './api.js';
+// A senha vai pelo Worker direto para a Ufac. Só fica guardada (cifrada, neste iPhone) se a pessoa deixar
+// ligada a chave "Entrar sozinho quando a sessão cair" (credenciais.js).
+import { SemConexao, definirReentrada, pedir, marcarExpirado } from './api.js';
+import { guardar, marcarFalha, paraLoginAutomatico, limparMemoria as esquecerDaMemoria } from './credenciais.js';
 import { apagar, apagarTudo, gravar, ler } from './armazenamento.js';
 import { caminhos } from './config.js';
 import { lerEticketInicio, lerTokenLoginEticket } from './extratores/eticket.js';
@@ -12,10 +14,16 @@ import { desconectarClassroom } from './classroom.js';
 export class ErroLogin extends Error {}
 /** O Portal aceitou a senha, mas exige trocar por uma nova no site antes de abrir qualquer página. */
 export class ErroTrocarSenha extends ErroLogin {}
+/** A página de login não abriu ou pediu CAPTCHA: não é senha errada. */
+export class ErroSemFormulario extends ErroLogin {}
+/** CAPTCHA é sempre da pessoa: o login automático nunca envia nada numa página com CAPTCHA. */
+export class ErroCaptcha extends ErroLogin {}
+
+const temCaptcha = (html) => /captcha/i.test(html);
 
 const FRASE_TROCAR_SENHA = 'O Portal está pedindo para você trocar a senha.';
 
-async function entrarNoPortal(sistema, cpf, senha) {
+async function entrarNoPortal(sistema, cpf, senha, { automatico = false } = {}) {
   const inicio = sistema === 'professor' ? caminhos.professorInicio : caminhos.portalInicio;
   const post = sistema === 'professor' ? caminhos.professorLoginPost : caminhos.portalLoginPost;
   // Primeiro abre a página protegida: o Tomcat só aceita o formulário com a sessão que ela cria.
@@ -27,6 +35,7 @@ async function entrarNoPortal(sistema, cpf, senha) {
     await portalPedeSenha();
     throw new ErroTrocarSenha(FRASE_TROCAR_SENHA);
   }
+  if (automatico && temCaptcha(await antes.resposta.text().catch(() => ''))) throw new ErroCaptcha('O Portal pediu CAPTCHA.');
   const r = await pedir(sistema, post, { metodo: 'POST', formulario: { j_username: cpf.replace(/\D/g, ''), j_password: senha } });
   // Onde o Portal parou depois do login (sem parâmetros): separa senha errada de outra página no caminho.
   registrar('login', { sistema, resultado: r.estado, status: r.status, antes: semParametros(antes.urlFinal), foiPara: semParametros(r.urlFinal) });
@@ -45,13 +54,15 @@ async function portalPedeSenha() {
   await apagar('diagnosticoPortal');
 }
 
-async function entrarNoEticket(cpf, senha) {
+async function entrarNoEticket(cpf, senha, { automatico = false } = {}) {
   const pagina = await pedir('eticket', caminhos.eticketLogin);
   if (pagina.estado === 'logado') return;
-  const token = lerTokenLoginEticket(await pagina.resposta.text());
+  const htmlLogin = await pagina.resposta.text();
+  if (automatico && temCaptcha(htmlLogin)) throw new ErroCaptcha('O eTICKET pediu CAPTCHA.');
+  const token = lerTokenLoginEticket(htmlLogin);
   if (!token) {
     registrar('login', { sistema: 'eticket', resultado: 'sem formulário de login', status: pagina.status, foiPara: semParametros(pagina.urlFinal) });
-    throw new ErroLogin('Não consegui abrir o login do eTICKET agora. Tente daqui a pouco.');
+    throw new ErroSemFormulario('Não consegui abrir o login do eTICKET agora. Tente daqui a pouco.');
   }
   const r = await pedir('eticket', caminhos.eticketLogin, {
     metodo: 'POST',
@@ -66,19 +77,53 @@ async function entrarNoEticket(cpf, senha) {
 
 /** etapa: 'portal' | 'eticket' | 'ambos'. aoProgredir recebe o nome da etapa em andamento. */
 /** concluir: false na etapa 1 do primeiro login, para não marcar o login como completo só com o Portal. */
-export async function entrar(perfil, cpf, senha, { etapa = 'ambos', aoProgredir = () => {}, concluir = true } = {}) {
+/** lembrar: guarda CPF e senha (cifrados) para o app entrar sozinho quando a sessão cair. */
+export async function entrar(perfil, cpf, senha, { etapa = 'ambos', aoProgredir = () => {}, concluir = true, lembrar = false } = {}) {
   const sistema = perfil === 'professor' ? 'professor' : 'portal';
   if (etapa !== 'eticket') {
     aoProgredir(perfil === 'professor' ? 'Portal do Professor' : 'Portal do Aluno');
     await entrarNoPortal(sistema, cpf, senha);
+    if (lembrar) await guardar('portal', cpf, senha);
   }
   if (etapa !== 'portal' && perfil !== 'professor') {
     aoProgredir('eTICKET do RU');
     await entrarNoEticket(cpf, senha);
+    if (lembrar) await guardar('eticket', cpf, senha);
   }
   await gravar('perfil', perfil);
   if (concluir) await gravar('loginConcluido', true);
 }
+
+// ---------- Entrar sozinho quando a sessão cair ----------
+
+const emAndamento = new Map(); // um login por sistema, mesmo com várias telas lendo ao mesmo tempo
+
+async function tentarEntrarSozinho(sistema) {
+  const conta = sistema === 'eticket' ? 'eticket' : 'portal';
+  const c = await paraLoginAutomatico(conta);
+  if (!c) return false;
+  try {
+    if (sistema === 'eticket') await entrarNoEticket(c.cpf, c.senha, { automatico: true });
+    else await entrarNoPortal(sistema, c.cpf, c.senha, { automatico: true });
+    registrar('login', { sistema, resultado: 'entrou sozinho' });
+    return true;
+  } catch (falha) {
+    // Sem internet ou página que não abriu: tenta de novo na próxima leitura.
+    if (falha instanceof SemConexao) throw falha;
+    if (falha instanceof ErroSemFormulario) return false;
+    // Senha recusada, senha vencida ou CAPTCHA: para até a pessoa entrar à mão.
+    registrar('login', { sistema, resultado: falha instanceof ErroCaptcha ? 'CAPTCHA: parou de entrar sozinho' : 'senha recusada: parou de entrar sozinho' });
+    await marcarFalha(conta);
+    return false;
+  }
+}
+
+/** Uma tentativa por leitura. true: entrou de novo e a página pode ser pedida outra vez. */
+function reentrar(sistema) {
+  if (!emAndamento.has(sistema)) emAndamento.set(sistema, tentarEntrarSozinho(sistema).finally(() => emAndamento.delete(sistema)));
+  return emAndamento.get(sistema);
+}
+definirReentrada(reentrar);
 
 export const loginConcluido = async () => (await ler('loginConcluido')) === true;
 
@@ -92,6 +137,7 @@ export async function sair() {
     /* sem push, nada a cancelar */
   }
   await desconectarClassroom().catch(() => {});
-  await apagarTudo();
+  await apagarTudo(); // inclui CPF, senhas e a chave da cifra
+  esquecerDaMemoria();
   navigator.clearAppBadge?.();
 }

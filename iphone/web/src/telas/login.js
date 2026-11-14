@@ -1,6 +1,7 @@
 import { apagar, ler } from '../lib/armazenamento.js';
 import { SemConexao } from '../lib/api.js';
 import { ErroLogin, ErroTrocarSenha, entrar } from '../lib/sessao.js';
+import { definirLigado, ligado as loginAutomaticoLigado } from '../lib/credenciais.js';
 import { registrar } from '../lib/registro.js';
 import { cpfFormatado } from '../lib/regras.js';
 import { aplicarAparencia } from '../main.js';
@@ -52,6 +53,7 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
   const etapas = relogin ? [parametro === 'portal' ? portal : 'eticket'] : perfil === 'professor' ? ['professor'] : ['portal', 'eticket'];
   let indice = 0;
   let cpf = ''; // só dígitos, só na memória durante o login
+  let lembrar = await loginAutomaticoLigado(); // chave Entrar sozinho quando a sessão cair
   // Voltar na etapa 2 volta para a etapa 1, sem abandonar o login pela metade.
   acoes.voltar = async () => {
     if (indice === 0) return voltar();
@@ -102,11 +104,16 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
               <label for="senha">${s.campo}</label>
               <input id="senha" name="password" type="password" autocomplete="current-password" required>
             </div>
+            <label class="item lembrar" style="cursor:pointer;padding:4px 0">
+              <span class="cresce"><span class="titulo">Entrar sozinho quando a sessão cair</span>
+                <span class="apoio" style="display:block">Guarda o CPF e a senha cifrados só neste iPhone, para o app entrar de novo sem pedir login.</span></span>
+              <input type="checkbox" class="interruptor" id="lembrar" aria-label="Entrar sozinho quando a sessão cair" ${lembrar ? html`checked` : ''}>
+            </label>
             <div id="erro" aria-live="polite"></div>
             <button class="botao largo tocavel" id="entrar" type="submit">${s.botao}</button>
           </form>
         </section>
-        <div class="apoio" style="text-align:center">O Chaves do iCloud guarda as duas senhas separadas, com o nome de cada sistema. Quem guarda é o iPhone; o UFAC+ não salva senha.</div>
+        <div class="apoio" style="text-align:center">O Chaves do iCloud guarda as duas senhas separadas, com o nome de cada sistema. Com "Entrar sozinho" ligado, o UFAC+ também guarda, cifradas e só neste iPhone; elas só vão para a Ufac.</div>
         <button class="botao largo claro tocavel" data-acao="relatar">${ic('info')} Problemas para entrar? Relatar</button>
       </div>`);
     ligar(sistema);
@@ -116,6 +123,10 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
   function ligar(sistema) {
     const s = SISTEMAS[sistema];
     const campoCpf = tela.querySelector('#cpf');
+    tela.querySelector('#lembrar').addEventListener('change', async (e) => {
+      lembrar = e.target.checked;
+      await definirLigado(lembrar); // desligar apaga na hora o que estava guardado
+    });
     const conta = tela.querySelector('#conta');
     const caixaConta = tela.querySelector('.conta-chaves');
     const rotular = () => {
@@ -155,7 +166,7 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
       botao.textContent = 'Entrando…';
       const ultima = indice === etapas.length - 1;
       try {
-        await entrar(perfil, cpf, senha.value, { etapa: sistema === 'professor' ? 'portal' : sistema, concluir: ultima });
+        await entrar(perfil, cpf, senha.value, { etapa: sistema === 'professor' ? 'portal' : sistema, concluir: ultima, lembrar });
         // Não limpar a senha antes de tirar o formulário da tela: o Safari usa isso para oferecer salvar.
         if (!ultima) {
           indice++;

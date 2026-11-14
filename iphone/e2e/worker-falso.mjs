@@ -31,6 +31,11 @@ createServer((req, res) => {
       estado = { portal: false, eticket: false, eticketMudo: false, pedidos: [] };
       return responder(200, 'ok');
     }
+    // Derruba a sessão do Portal (como quando ela cai em menos de 1 hora).
+    if (url.pathname === '/__expirar-portal') {
+      estado.portal = false;
+      return responder(200, 'ok');
+    }
     // Simula o eTICKET sem responder à Cloudflare (o pedido fica pendurado para sempre).
     if (url.pathname === '/__eticket-mudo') {
       estado.eticketMudo = true;

@@ -1,6 +1,6 @@
 // Repositórios: leem da Ufac (pelo Worker), guardam no IndexedDB e devolvem.
 // Regra da Ufac: poucos pedidos, só ao abrir, ao voltar (no máximo a cada 15 min) ou ao puxar para atualizar.
-import { enderecoDaUltimaPagina, lerPagina, marcarExpirado, pedir } from './api.js';
+import { enderecoDaUltimaPagina, lerPagina, marcarExpirado, pedir, tentarReentrar } from './api.js';
 import { apagar, gravar, ler } from './armazenamento.js';
 import { caminhos } from './config.js';
 import { lerEticketCardapio, lerEticketInicio, lerHistoricoRecargas, lerHistoricoRefeicoes } from './extratores/eticket.js';
@@ -161,7 +161,9 @@ export async function atualizarNotas() {
 export async function baixarRelatorio(acao) {
   const id = await idInterno();
   if (!id) return null;
-  const r = await pedir('portal', caminhos.relatorio(acao, id), { accept: 'application/pdf' });
+  let r = await pedir('portal', caminhos.relatorio(acao, id), { accept: 'application/pdf' });
+  // Sessão caída: entra sozinho (se a pessoa deixou) e pede o PDF uma vez mais.
+  if (r.estado === 'naLogin' && (await tentarReentrar('portal'))) r = await pedir('portal', caminhos.relatorio(acao, id), { accept: 'application/pdf' });
   if (r.estado === 'naLogin' || r.estado === 'trocarSenha') {
     await marcarExpirado('portal', true);
     return null;
