@@ -1,6 +1,6 @@
 # UFAC+
 
-**Portal do Aluno e RU da Ufac num app só:** seus dados, horários, notas, relatórios em PDF, saldo do RU, QR de entrada (funciona offline) e cardápio.
+**Portal do Aluno e RU da Ufac num app só:** seus dados, horários, notas, relatórios em PDF, saldo do RU, QR de entrada (funciona offline), cardápio e as atividades do Google Classroom. Tem também um perfil para professores.
 
 > App independente, feito por alunos. **Não é um aplicativo oficial da Ufac.**
 
@@ -8,11 +8,22 @@
 
 | | Android | iPhone |
 |---|---|---|
-| **Como instalar** | Baixe o `.apk` da release **[Latest](https://github.com/arthurleticiaclaude/ufac-no-bolso/releases/latest)** e permita "instalar apps desta fonte". | Abra **[ufac-plus-ios.pages.dev/instalar](https://ufac-plus-ios.pages.dev/instalar/)** no Safari e toque em **Compartilhar › Adicionar à Tela de Início**. |
+| **Como instalar** | Baixe o `.apk` da release **[Latest](https://github.com/ufac-plus/ufac-plus/releases/latest)** e permita "instalar apps desta fonte". | Abra **[ufac-plus-ios.pages.dev/instalar](https://ufac-plus-ios.pages.dev/instalar/)** no Safari e toque em **Compartilhar › Adicionar à Tela de Início**. |
 | **Atualizações** | Pela faixa "Nova versão disponível" na tela Início. | Sozinho, ao abrir o app. |
-| **Notas das versões** | Release **[Latest](https://github.com/arthurleticiaclaude/ufac-no-bolso/releases/latest)**, seção Android | Release **[Latest](https://github.com/arthurleticiaclaude/ufac-no-bolso/releases/latest)**, seção iPhone |
+| **Notas das versões** | [Releases "UFAC+ Android"](https://github.com/ufac-plus/ufac-plus/releases) | [Releases "UFAC+ iPhone"](https://github.com/ufac-plus/ufac-plus/releases) |
 
-As duas versões fazem a mesma coisa, mas são apps diferentes por dentro: no Android, um app instalado pelo `.apk`; no iPhone, um app da web que se instala pelo Safari (sem App Store). Por isso a release do iPhone não tem arquivo para baixar.
+Ou abra **[ufac-plus.github.io/ufac-plus](https://ufac-plus.github.io/ufac-plus/)** no celular: a página mostra a versão certa para ele.
+
+## Privacidade
+
+- O login é sempre no ID Ufac. Os dados lidos (notas, horários, saldo, QR) ficam só no celular de quem usa.
+- Nada de anúncios, rastreamento ou servidor que guarde seus dados.
+- **Android:** se você ligar "Entrar sozinho quando a sessão cair", o CPF e a senha ficam cifrados no cofre do próprio celular e só vão para o site da Ufac. Desligado, o app não guarda a senha.
+- Detalhes: [política do Android](https://ufac-plus.github.io/ufac-plus/privacidade.html) · [política do iPhone](https://ufac-plus-ios.pages.dev/privacidade/).
+
+## Achou um problema?
+
+Abra uma [Issue](https://github.com/ufac-plus/ufac-plus/issues) dizendo o celular (Android ou iPhone), a versão do app e o que aconteceu. **Não ponha** CPF, matrícula, número do QR nem prints com seus dados: as Issues são públicas.
 
 ## Código-fonte
 
@@ -20,11 +31,8 @@ O código é aberto para quem quiser conferir o que o app faz com os seus dados.
 
 | Pasta | O quê |
 |---|---|
-| [`iphone/`](iphone/) | App do iPhone (app da web em JavaScript, com Vite) e o servidor de repasse (Cloudflare Worker). Como rodar e testar: [`iphone/README.md`](iphone/README.md). |
-| *(em breve)* | App do Android (Flutter), numa pasta própria. |
+| [`android/`](android/) | App do Android (Flutter). Como rodar: [`android/README.md`](android/README.md). |
+| [`iphone/`](iphone/) | App do iPhone (app da web em JavaScript, com Vite) e o servidor de repasse (Cloudflare Worker). Como rodar: [`iphone/README.md`](iphone/README.md). |
+| [`docs/`](docs/) | Como os sites da Ufac funcionam, decisões do projeto e como publicar. |
 
-Cada versão fica separada na sua pasta: uma não mexe na outra. Os testes usam só páginas de exemplo com dados fictícios (`iphone/fixtures/`). Senhas, chaves e dados reais nunca entram no repositório.
-
-## Privacidade
-
-As senhas vão direto para a Ufac e o app não as guarda. Os dados lidos ficam só no celular de quem usa. Nada de anúncios ou rastreamento.
+Os testes usam só páginas de exemplo com dados fictícios. Senhas, chaves e dados reais nunca entram no repositório. Regras do projeto: [`CLAUDE.md`](CLAUDE.md).

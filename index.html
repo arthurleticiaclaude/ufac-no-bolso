@@ -4,14 +4,90 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>UFAC+</title>
-<style>body{font-family:system-ui,sans-serif;max-width:680px;margin:40px auto;padding:0 16px;line-height:1.6;color:#1a1a1a}a{color:#0b5cad}</style>
+<meta name="description" content="Portal do Aluno e RU da Ufac num app só, para Android e iPhone. App independente, não oficial.">
+<style>
+:root{--fundo:#F3F5F9;--cartao:#FFFFFF;--texto:#0E1726;--sec:#536074;--borda:#E3E8F0;--prim:#0B4FA8;--acento:#F2A516;--sobreAcento:#1A1300}
+@media (prefers-color-scheme:dark){:root{--fundo:#0A0F1A;--cartao:#141B2A;--texto:#E9EEF6;--sec:#9AA6BA;--borda:#232D40;--prim:#16438C;--acento:#F5B23A}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--texto);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55}
+main{max-width:640px;margin:0 auto;padding:32px 16px 48px}
+h1{font-size:32px;margin:0 0 4px;font-weight:800}
+.sub{color:var(--sec);margin:0 0 24px}
+.cartao{background:var(--cartao);border:1px solid var(--borda);border-radius:20px;padding:20px;margin-bottom:16px}
+.cartao.destaque{background:var(--prim);border-color:var(--prim);color:#fff}
+.cartao.destaque p{color:#D3E1F7}
+h2{font-size:18px;margin:0 0 8px}
+.botao{display:block;text-align:center;font-weight:700;text-decoration:none;border-radius:14px;padding:14px 16px;margin-top:12px;background:var(--acento);color:var(--sobreAcento)}
+.botao.contorno{background:transparent;color:inherit;border:2px solid currentColor}
+ol{padding-left:20px;margin:8px 0 0}
+ul{padding-left:20px}
+.aviso{font-size:14px;color:var(--sec)}
+a{color:inherit}
+[hidden]{display:none!important}
+</style>
 </head>
 <body>
+<main>
 <h1>UFAC+</h1>
-<p>O UFAC+ é um aplicativo Android pessoal e independente, feito por um estudante, para reunir no celular as informações do dia a dia na Universidade Federal do Acre: turmas e atividades do Google Classroom, biblioteca e horários dos ônibus.</p>
-<p>O UFAC+ não é um aplicativo oficial da Ufac.</p>
-<p>O app lê as turmas e atividades do Google Classroom apenas no próprio celular, com a sua autorização, e não envia esses dados a nenhum servidor.</p>
-<p><a href="privacidade.html">Política de Privacidade</a></p>
-<p>Contato: henriquereal23@gmail.com</p>
+<p class="sub">Portal do Aluno e RU da Ufac num app só, para Android e iPhone.</p>
+
+<section class="cartao" id="android">
+  <h2>Android</h2>
+  <p>Instale pelo arquivo <code>.apk</code>. As próximas versões aparecem dentro do app.</p>
+  <ol>
+    <li>Toque em <strong>Baixar para Android</strong> e, na página que abrir, no arquivo <code>ufac-mais-v….apk</code>.</li>
+    <li>Abra o arquivo e permita "instalar apps desta fonte".</li>
+    <li>Entre com seu ID Ufac (Portal e eTICKET).</li>
+  </ol>
+  <a class="botao" href="https://github.com/ufac-plus/ufac-plus/releases/latest">Baixar para Android</a>
+</section>
+
+<section class="cartao" id="iphone">
+  <h2>iPhone</h2>
+  <p>Instale pelo Safari, direto na Tela de Início. Atualiza sozinho.</p>
+  <ol>
+    <li>Abra a página de instalação <strong>no Safari</strong>.</li>
+    <li>Toque em <strong>Compartilhar</strong> e depois em <strong>Adicionar à Tela de Início</strong>.</li>
+  </ol>
+  <a class="botao" href="https://ufac-plus-ios.pages.dev/instalar/">Instalar no iPhone</a>
+</section>
+
+<p class="aviso" id="outro" hidden>Usa o outro sistema? <a href="#" id="mostrarTodos">Ver as duas versões</a>.</p>
+
+<section class="cartao">
+  <h2>O que o app faz</h2>
+  <ul>
+    <li>Seus dados do Portal do Aluno, horários, notas com aviso de faltas e relatórios em PDF.</li>
+    <li>Saldo do RU, QR de entrada que funciona offline, cardápio e histórico.</li>
+    <li>Turmas e atividades do Google Classroom, só para leitura, com a sua autorização.</li>
+    <li>Perfil para professores (Android).</li>
+  </ul>
+  <p>Os dados lidos da Ufac e do Classroom ficam só no seu celular. O app não tem anúncios, não rastreia e não vende nada.</p>
+</section>
+
+<p class="aviso">App independente, feito por alunos. <strong>Não é um aplicativo oficial da Ufac.</strong></p>
+<p class="aviso"><a href="privacidade.html">Política de Privacidade</a> · <a href="https://github.com/ufac-plus/ufac-plus">Código-fonte</a> · <a href="https://github.com/ufac-plus/ufac-plus/issues">Relatar um problema</a></p>
+<p class="aviso">Contato: henriquereal23@gmail.com</p>
+</main>
+<script>
+// Mostra primeiro a versão do celular de quem abriu. No computador, mostra as duas.
+(function () {
+  var ua = navigator.userAgent || '';
+  var ios = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var android = /Android/i.test(ua);
+  if (!ios && !android) return;
+  var meu = document.getElementById(android ? 'android' : 'iphone');
+  var outro = document.getElementById(android ? 'iphone' : 'android');
+  meu.classList.add('destaque');
+  outro.hidden = true;
+  var aviso = document.getElementById('outro');
+  aviso.hidden = false;
+  document.getElementById('mostrarTodos').addEventListener('click', function (e) {
+    e.preventDefault();
+    outro.hidden = false;
+    aviso.hidden = true;
+  });
+})();
+</script>
 </body>
 </html>
