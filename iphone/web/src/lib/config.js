@@ -4,6 +4,8 @@ export const WORKER_URL = (import.meta.env?.VITE_WORKER_URL ?? 'http://localhost
 export const GOOGLE_CLIENT_ID = import.meta.env?.VITE_GOOGLE_CLIENT_ID ?? '';
 export const INSTAGRAM_RU = 'https://www.instagram.com/ru.informa.ufac/';
 export const CONTATO_EMAIL = import.meta.env?.VITE_CONTATO_EMAIL ?? '';
+/** Número com DDI e DDD, só dígitos (ex.: 5568...). Vazio = sem botão de WhatsApp direto. */
+export const CONTATO_WHATSAPP = import.meta.env?.VITE_CONTATO_WHATSAPP ?? '';
 export const VERSAO = '0.1.0-ios';
 
 export const URL_RECARGA = 'https://sistemas.ufac.br/eticket/valorPaga/';

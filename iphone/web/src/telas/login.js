@@ -1,6 +1,7 @@
 import { apagar, ler } from '../lib/armazenamento.js';
 import { SemConexao } from '../lib/api.js';
-import { ErroLogin, entrar } from '../lib/sessao.js';
+import { ErroLogin, ErroTrocarSenha, entrar } from '../lib/sessao.js';
+import { registrar } from '../lib/registro.js';
 import { cpfFormatado } from '../lib/regras.js';
 import { aplicarAparencia } from '../main.js';
 import { botaoRedondo, cabecalho, faixa, html, ic, montar } from '../ui/componentes.js';
@@ -106,6 +107,7 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
           </form>
         </section>
         <div class="apoio" style="text-align:center">O Chaves do iCloud guarda as duas senhas separadas, com o nome de cada sistema. Quem guarda é o iPhone; o UFAC+ não salva senha.</div>
+        <button class="botao largo claro tocavel" data-acao="relatar">${ic('info')} Problemas para entrar? Relatar</button>
       </div>`);
     ligar(sistema);
     if (segunda) tela.querySelector('#senha').focus();
@@ -165,7 +167,14 @@ export default async function login(tela, { parametro, ir, voltar, acoes }) {
         ir('inicio', { substituir: true });
       } catch (falha) {
         const texto = falha instanceof ErroLogin ? falha.message : falha instanceof SemConexao ? 'Sem conexão com a Ufac agora. Confira a internet e tente de novo.' : 'Algo deu errado ao entrar. Tente de novo.';
-        montar(erro, faixa({ icone: 'alerta', titulo: texto, tipo: 'perigo' }));
+        if (!(falha instanceof ErroLogin) && !(falha instanceof SemConexao)) registrar('app', { erro: falha?.message ?? String(falha), onde: 'login', sistema });
+        // Senha certa e mesmo assim não entra: o relato leva onde o login parou.
+        montar(
+          erro,
+          falha instanceof ErroTrocarSenha
+            ? faixa({ icone: 'cadeado', titulo: texto, texto: 'Sua senha está certa, mas venceu. Troque no site da Ufac e depois entre aqui com a senha nova.', acao: 'trocar-senha-portal', rotuloAcao: 'Abrir o site' })
+            : faixa({ icone: 'alerta', titulo: texto, texto: 'Se a senha está certa e o erro continua, relate.', tipo: 'perigo', acao: 'relatar', rotuloAcao: 'Relatar' }),
+        );
         botao.disabled = false;
         botao.textContent = s.botao;
       }

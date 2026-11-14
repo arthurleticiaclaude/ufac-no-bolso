@@ -7,7 +7,7 @@ import { cardapioPendente, itensDoCardapio, proximaRefeicao } from '../src/lib/d
 import { formatarMoeda, mascararNumero, formatarPrazoCurto } from '../src/lib/dominio/formatos.js';
 import { nomeApresentavel } from '../src/lib/extratores/comum.js';
 import { lerEticketCardapio, lerEticketInicio, lerHistoricoRecargas, lerHistoricoRefeicoes, lerTokenLoginEticket } from '../src/lib/extratores/eticket.js';
-import { lerCargaHoraria, lerEnderecoComunicacoes, lerHorarios, lerIdentificacao, lerIdInterno, lerListaDeNotas, lerNotasDaDisciplina } from '../src/lib/extratores/portal.js';
+import { diagnosticoPagina, lerCargaHoraria, lerEnderecoComunicacoes, lerHorarios, lerIdentificacao, lerIdInterno, lerListaDeNotas, lerNotasDaDisciplina } from '../src/lib/extratores/portal.js';
 import { lerAulasDoMes, lerDetalheTurma, lerMesesAgenda, lerNomeProfessor, lerTurmasProfessor } from '../src/lib/extratores/professor.js';
 import { aulasDoProfessor, semChamada } from '../src/lib/dominio/professor.js';
 
@@ -100,6 +100,18 @@ describe('Portal', () => {
   test('id interno', () => {
     expect(lerIdInterno(fixture('portal_inicio.html'))).toBe('11111');
     expect(lerIdInterno(fixture('public/portal_login.html'))).toBeNull();
+  });
+  test('id interno: lista de seleção e links', () => {
+    expect(lerIdInterno('<select id="matricula"><option value="22222">A</option><option value="33333" selected>B</option></select>')).toBe('33333');
+    expect(lerIdInterno('<a href="/aluno/aluno/nota/nota.action?matricula=44444">Notas</a><a href="x.action?a=1&amp;matricula=44444">H</a>')).toBe('44444');
+    // Dois vínculos sem campo: ambíguo, não adivinha.
+    expect(lerIdInterno('<a href="a.action?matricula=55555">Medicina</a><a href="a.action?matricula=66666">Enfermagem</a>')).toBeNull();
+  });
+  test('diagnóstico não leva dados pessoais', () => {
+    const pagina = '<title>Portal do Aluno</title><h2>Selecione o vínculo de 12345678901</h2><form action="/aluno/vinculo.action?cpf=12345678901"></form><a href="a.action?matricula=55555">Medicina</a><a href="a.action?matricula=66666">Enfermagem</a>';
+    const d = diagnosticoPagina(pagina, 'https://portal.ufac.br/aluno/vinculo/12345678901.action?cpf=12345678901');
+    expect(d).toMatchObject({ caminho: '/aluno/vinculo/#.action', titulo: 'Portal do Aluno', titulos: ['Selecione o vínculo de #'], formularios: ['/aluno/vinculo.action'], campoMatricula: 'nenhum', idsNosLinks: 2 });
+    expect(JSON.stringify(d)).not.toMatch(/12345678901|55555|Medicina/);
   });
   test('identificação', () => {
     const d = lerIdentificacao(fixture('portal_relatorios.html'));

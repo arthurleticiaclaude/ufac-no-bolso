@@ -1,7 +1,8 @@
 // Cliente do Worker. A sessão da Ufac é um texto cifrado que só o Worker abre; aqui ela só é guardada.
-import { gravar, ler } from './armazenamento.js';
+import { apagar, gravar, ler } from './armazenamento.js';
 import { caminhos, WORKER_URL } from './config.js';
 import { classificar } from './regras.js';
+import { registrar, semParametros } from './registro.js';
 
 export class SemConexao extends Error {}
 
@@ -34,13 +35,18 @@ export async function pedir(sistema, caminho, { metodo = 'GET', formulario, xhr 
     corpo = new URLSearchParams(formulario).toString();
   }
   let resposta;
+  const t0 = Date.now();
   try {
     resposta = await fetch(`${WORKER_URL}/${raiz}${caminho}`, { method: metodo, headers: cabecalhos, body: corpo, cache: 'no-store', signal: comLimite(limite) });
-  } catch {
+  } catch (e) {
+    registrar('rede', { sistema, metodo, caminho: semParametros(caminho), erro: e?.name === 'TimeoutError' || e?.name === 'AbortError' ? 'tempo esgotado no app' : 'sem conexão com o Worker', online: navigator.onLine, ms: Date.now() - t0 });
     throw new SemConexao('Sem conexão');
   }
   // 504: o Worker desistiu de esperar a Ufac.
-  if (resposta.status === 504 || resposta.status === 502) throw new SemConexao(`A Ufac não respondeu (${resposta.status})`);
+  if (resposta.status === 504 || resposta.status === 502) {
+    registrar('rede', { sistema, metodo, caminho: semParametros(caminho), status: resposta.status, tentativas: resposta.headers.get('X-Tentativas') ?? '', ms: Date.now() - t0 });
+    throw new SemConexao(`A Ufac não respondeu (${resposta.status})`);
+  }
   const nova = resposta.headers.get('X-Sessao');
   if (nova) await gravar('sessao', nova);
   const urlFinal = resposta.headers.get('X-Url-Final') ?? '';
@@ -48,13 +54,28 @@ export async function pedir(sistema, caminho, { metodo = 'GET', formulario, xhr 
 }
 
 /** Lê o HTML de uma página logada. Null quando a sessão caiu (e marca o sistema como expirado). */
+/** Endereço final (depois dos redirecionamentos) da última página lida: usado só no diagnóstico. */
+let ultimoEndereco = '';
+export const enderecoDaUltimaPagina = () => ultimoEndereco;
+
 export async function lerPagina(sistema, caminho, opcoes) {
   const r = await pedir(sistema, caminho, opcoes);
+  ultimoEndereco = r.urlFinal;
+  if (r.estado === 'trocarSenha') {
+    // Sem senha nova o Portal não abre nada: trata como sessão encerrada, com a faixa de trocar a senha.
+    registrar('sessao', { sistema, caminho: semParametros(caminho), foiPara: semParametros(r.urlFinal), detalhe: 'Portal pede senha nova' });
+    await gravar('portalPedeSenha', true);
+    await apagar('diagnosticoPortal');
+    await marcarExpirado(sistema, true);
+    return null;
+  }
   if (r.estado === 'naLogin') {
+    registrar('sessao', { sistema, caminho: semParametros(caminho), foiPara: semParametros(r.urlFinal) });
     await marcarExpirado(sistema, true);
     return null;
   }
   if (r.status >= 400) {
+    registrar('rede', { sistema, caminho: semParametros(caminho), status: r.status, foiPara: semParametros(r.urlFinal) });
     // O Tomcat do Portal costuma responder 4xx (não o login) a pedidos de sessão vencida: confere antes de dizer "sem conexão".
     if (sistema !== 'eticket' && r.status < 500 && (await sessaoCaiu(sistema))) {
       await marcarExpirado(sistema, true);
@@ -66,13 +87,16 @@ export async function lerPagina(sistema, caminho, opcoes) {
   try {
     texto = await r.resposta.text();
   } catch {
+    registrar('rede', { sistema, caminho: semParametros(caminho), erro: 'a página parou no meio' });
     throw new SemConexao('A página parou no meio');
   }
   // Às vezes o Portal entrega o formulário de login com 200 no próprio endereço pedido.
   if (sistema !== 'eticket' && /j_security_check|name="j_password"/.test(texto)) {
+    registrar('sessao', { sistema, caminho: semParametros(caminho), detalhe: 'formulário de login com 200' });
     await marcarExpirado(sistema, true);
     return null;
   }
+  if (sistema !== 'eticket') await apagar('portalPedeSenha');
   await marcarExpirado(sistema, false);
   return texto;
 }

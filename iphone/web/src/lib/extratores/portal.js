@@ -6,8 +6,42 @@ const BASE = 'https://portal.ufac.br';
 
 /** O número interno que o portal usa nos endereços (não é a matrícula de 11 dígitos). */
 export function lerIdInterno(pagina) {
-  const v = parse(pagina).querySelector('input#matricula')?.getAttribute('value')?.trim();
-  return v && /^\d+$/.test(v) ? v : null;
+  const doc = parse(pagina);
+  const campo = doc.querySelector('#matricula');
+  // Normal: <input type="hidden" id="matricula">. Se um dia vier como lista de seleção, vale a opção escolhida.
+  const v = (campo?.localName === 'select' ? (campo.querySelector('option[selected]') ?? campo.querySelector('option'))?.getAttribute('value') : campo?.getAttribute('value'))?.trim();
+  if (v && /^\d+$/.test(v)) return v;
+  // Sem o campo: aceita o número dos links (?matricula=) só se todos apontarem para o mesmo. Mais de um é ambíguo.
+  const ids = idsNosLinks(pagina);
+  return ids.length === 1 ? ids[0] : null;
+}
+
+const idsNosLinks = (pagina) => [...new Set([...pagina.matchAll(/[?&](?:amp;)?matricula=(\d+)/g)].map((m) => m[1]))];
+
+/**
+ * Para o relato de problema quando o número interno não aparece: só a forma da página, nunca o conteúdo.
+ * Sem nome, CPF, matrícula, números longos nem parâmetros de endereço.
+ */
+export function diagnosticoPagina(pagina, endereco) {
+  const doc = parse(pagina);
+  const semNumeros = (t) => limpo(t).replace(/\d{4,}/g, '#').slice(0, 80);
+  let caminho = '';
+  try {
+    caminho = new URL(endereco).pathname.replace(/\d{4,}/g, '#');
+  } catch {
+    /* sem endereço */
+  }
+  const acoes = [...doc.querySelectorAll('form')].map((f) => (f.getAttribute('action') ?? '').split('?')[0].replace(/\d{4,}/g, '#'));
+  return {
+    caminho,
+    titulo: semNumeros(doc.querySelector('title')?.textContent),
+    titulos: [...doc.querySelectorAll('h1, h2, h3, legend')].slice(0, 4).map((h) => semNumeros(h.textContent)).filter(Boolean),
+    formularios: acoes.slice(0, 4),
+    campoMatricula: doc.querySelector('#matricula')?.localName ?? 'nenhum',
+    selects: doc.querySelectorAll('select').length,
+    idsNosLinks: idsNosLinks(pagina).length,
+    tamanho: pagina.length,
+  };
 }
 
 /** O link "Mais Relatórios" da página de Relatórios, como endereço completo. */

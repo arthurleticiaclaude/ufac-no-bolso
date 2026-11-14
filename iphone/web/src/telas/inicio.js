@@ -30,6 +30,8 @@ export default async function inicio(tela, { ir, acoes }) {
     const [ident, ru, horarios, cardapio, classroom, prefs] = await Promise.all([
       ler('identificacao'), ler('ru'), ler('horarios'), ler('cardapio'), ler('classroom'), lerPrefs(),
     ]);
+    // Página do Portal que o app não reconheceu: oferece mandar a forma dela (sem dados pessoais) para corrigir.
+    const diagnostico = !ident ? await ler('diagnosticoPortal') : null;
     const feriado = prefs.feriados ? avisoFeriado(agora) : null;
     const aula = horarios ? proximaAula(horarios.aulas, agora) : null;
     const refeicao = proximaRefeicao(agora);
@@ -62,7 +64,9 @@ export default async function inicio(tela, { ir, acoes }) {
             </div>`
           : carregando
             ? esqueleto(3)
-            : html`${vazio('pessoa', 'Ainda não li seus dados do Portal')}<button class="botao largo claro tocavel" data-acao="entrar-portal">Entrar no Portal</button>`}
+            : diagnostico
+              ? html`${vazio('pessoa', 'O Portal abriu uma página que o app ainda não conhece')}<button class="botao largo claro tocavel" data-acao="relatar">Enviar diagnóstico</button><div class="apoio" style="margin-top:8px;text-align:center">Vai sem nome, CPF nem matrícula. Você revisa antes de enviar.</div>`
+              : html`${vazio('pessoa', 'Ainda não li seus dados do Portal')}<button class="botao largo claro tocavel" data-acao="entrar-portal">Entrar no Portal</button>`}
       </section>
 
       <section class="cartao vidro tingido" aria-label="RU">

@@ -1,11 +1,12 @@
 // Repositórios: leem da Ufac (pelo Worker), guardam no IndexedDB e devolvem.
 // Regra da Ufac: poucos pedidos, só ao abrir, ao voltar (no máximo a cada 15 min) ou ao puxar para atualizar.
-import { lerPagina, marcarExpirado, pedir } from './api.js';
-import { gravar, ler } from './armazenamento.js';
+import { enderecoDaUltimaPagina, lerPagina, marcarExpirado, pedir } from './api.js';
+import { apagar, gravar, ler } from './armazenamento.js';
 import { caminhos } from './config.js';
 import { lerEticketCardapio, lerEticketInicio, lerHistoricoRecargas, lerHistoricoRefeicoes } from './extratores/eticket.js';
-import { lerCargaHoraria, lerEnderecoComunicacoes, lerEnderecoMaisRelatorios, lerHorarios, lerIdentificacao, lerIdInterno, lerListaDeNotas, lerNotasDaDisciplina } from './extratores/portal.js';
+import { diagnosticoPagina, lerCargaHoraria, lerEnderecoComunicacoes, lerEnderecoMaisRelatorios, lerHorarios, lerIdentificacao, lerIdInterno, lerListaDeNotas, lerNotasDaDisciplina } from './extratores/portal.js';
 import { lerAulasDoMes, lerDetalheTurma, lerMesesAgenda, lerNomeProfessor, lerTurmasProfessor } from './extratores/professor.js';
+import { registrar, semParametros } from './registro.js';
 import { cardapioPendente, cardapioValeEm, itensDoCardapio } from './dominio/refeicoes.js';
 
 const agoraISO = () => new Date().toISOString();
@@ -13,6 +14,12 @@ const INTERVALO_MIN = 15 * 60 * 1000;
 
 /** Erro com a frase que a pessoa vai ler. */
 export class ErroLeitura extends Error {}
+
+/** Erro de leitura que também vai para o registro, com a forma da página (sem o conteúdo) para o relato. */
+function falhaDeLeitura(mensagem, o, pagina) {
+  registrar('leitura', { o, ...(pagina != null ? diagnosticoPagina(pagina, enderecoDaUltimaPagina()) : {}) });
+  return new ErroLeitura(mensagem);
+}
 
 export async function recente(chave, intervalo = INTERVALO_MIN) {
   const v = await ler(chave);
@@ -25,7 +32,7 @@ export async function atualizarRu() {
   const html = await lerPagina('eticket', caminhos.eticketInicio);
   if (html === null) return null;
   const dados = lerEticketInicio(html);
-  if (!dados) throw new ErroLeitura('Não consegui ler o saldo no eTICKET.');
+  if (!dados) throw falhaDeLeitura('Não consegui ler o saldo no eTICKET.', 'saldo', html);
   const ru = { ...dados, lidoEm: agoraISO() };
   await gravar('ru', ru);
   return ru;
@@ -45,7 +52,7 @@ export async function atualizarCardapio({ forcar = false } = {}) {
   }
   if (!textos) {
     if (html === null) return atual;
-    throw new ErroLeitura('Não consegui ler o cardápio no eTICKET.');
+    throw falhaDeLeitura('Não consegui ler o cardápio no eTICKET.', 'cardápio', html);
   }
   // A página pública diz "Indisponível" mesmo com cardápio publicado: ela não apaga o que a logada já trouxe hoje.
   if (fonte === 'publica' && cardapioValeEm(atual, new Date())) {
@@ -77,8 +84,13 @@ async function idInterno() {
   const html = await lerPagina('portal', caminhos.portalInicio);
   if (html === null) return null;
   const id = lerIdInterno(html);
-  if (!id) throw new ErroLeitura('Não consegui ler seus dados no Portal.');
+  if (!id) {
+    // Guarda só a forma da página (sem dados pessoais) para o "Relatar um problema".
+    await gravar('diagnosticoPortal', { ...diagnosticoPagina(html, enderecoDaUltimaPagina()), em: agoraISO() });
+    throw falhaDeLeitura('Não consegui ler seus dados no Portal.', 'número interno', html);
+  }
   await gravar('idInterno', id);
+  await apagar('diagnosticoPortal');
   const comunicacoes = lerEnderecoComunicacoes(html);
   if (comunicacoes) await gravar('urlComunicacoes', comunicacoes);
   return id;
@@ -90,7 +102,7 @@ export async function atualizarIdentificacao() {
   const html = await lerPagina('portal', caminhos.relatorios(id));
   if (html === null) return null;
   const d = lerIdentificacao(html);
-  if (!d) throw new ErroLeitura('Não consegui ler sua identificação no Portal.');
+  if (!d) throw falhaDeLeitura('Não consegui ler sua identificação no Portal.', 'identificação', html);
   const ident = { ...d.identificacao, matricula: d.matricula, lidoEm: agoraISO() };
   await gravar('identificacao', ident);
   const mais = lerEnderecoMaisRelatorios(html);
@@ -104,7 +116,7 @@ export async function atualizarHorarios() {
   const html = await lerPagina('portal', caminhos.horarios(id), { xhr: true });
   if (html === null) return null;
   const aulas = lerHorarios(html);
-  if (!aulas) throw new ErroLeitura('Não consegui ler seus horários no Portal.');
+  if (!aulas) throw falhaDeLeitura('Não consegui ler seus horários no Portal.', 'horários', html);
   const h = { aulas, lidoEm: agoraISO() };
   await gravar('horarios', h);
   return h;
@@ -121,7 +133,7 @@ export async function atualizarNotas() {
   const html = await lerPagina('portal', caminhos.notas(id));
   if (html === null) return null;
   const lista = lerListaDeNotas(html);
-  if (!lista) throw new ErroLeitura('Não consegui ler suas notas no Portal.');
+  if (!lista) throw falhaDeLeitura('Não consegui ler suas notas no Portal.', 'notas', html);
   const anteriores = (await ler('notas'))?.disciplinas ?? [];
   const disciplinas = [];
   // Uma por vez, para não sobrecarregar o portal.
@@ -150,12 +162,15 @@ export async function baixarRelatorio(acao) {
   const id = await idInterno();
   if (!id) return null;
   const r = await pedir('portal', caminhos.relatorio(acao, id), { accept: 'application/pdf' });
-  if (r.estado === 'naLogin') {
+  if (r.estado === 'naLogin' || r.estado === 'trocarSenha') {
     await marcarExpirado('portal', true);
     return null;
   }
   const tipo = r.resposta.headers.get('Content-Type') ?? '';
-  if (!tipo.includes('pdf')) throw new ErroLeitura('O Portal não gerou o PDF agora. Tente de novo.');
+  if (!tipo.includes('pdf')) {
+    registrar('leitura', { o: 'PDF', relatorio: acao, status: r.status, tipo, foiPara: semParametros(r.urlFinal) });
+    throw new ErroLeitura('O Portal não gerou o PDF agora. Tente de novo.');
+  }
   return r.resposta.blob();
 }
 
@@ -165,7 +180,7 @@ export async function atualizarProfessor() {
   const htmlFreq = await lerPagina('professor', caminhos.professorTurmasFrequencia);
   if (htmlFreq === null) return null;
   const turmas = lerTurmasProfessor(htmlFreq);
-  if (!turmas) throw new ErroLeitura('Não consegui ler suas turmas no Portal do Professor.');
+  if (!turmas) throw falhaDeLeitura('Não consegui ler suas turmas no Portal do Professor.', 'turmas do professor', htmlFreq);
   const htmlNotas = await lerPagina('professor', caminhos.professorTurmasNotas);
   const notas = htmlNotas ? lerTurmasProfessor(htmlNotas) ?? [] : [];
   const agora = new Date();

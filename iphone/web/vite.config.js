@@ -7,7 +7,7 @@ const PAGINAS = ['instalar', 'privacidade'];
 let saida = resolve(__dirname, 'dist'); // build.outDir (dist, ou dist-e2e nos testes)
 const lerSaida = { name: 'ler-saida', configResolved(c) { saida = resolve(c.root, c.build.outDir); } };
 
-/** Serve /instalar/ e /privacidade/ (de ios-pwa/docs) no dev e copia para o build. */
+/** Serve /instalar/ e /privacidade/ (de iphone/docs) no dev e copia para o build. */
 function paginasDocs() {
   return {
     name: 'paginas-docs',

@@ -1,5 +1,5 @@
 import { apagar, gravar, ler } from '../lib/armazenamento.js';
-import { CONTATO_EMAIL, VERSAO } from '../lib/config.js';
+import { VERSAO } from '../lib/config.js';
 import { classroomDisponivel, conectado as classroomConectado, desconectarClassroom } from '../lib/classroom.js';
 import { ANTECEDENCIA_MIN, ativarPush, instalado, lerPrefs, sincronizarAgenda, suportaPush } from '../lib/push.js';
 import { REFEICOES } from '../lib/dominio/refeicoes.js';
@@ -17,11 +17,6 @@ const interruptor = (id, ligado, rotulo, sub = '') => html`
   </label>`;
 
 /** Texto do relato: só versão, aparelho e tela. Nunca CPF, matrícula, QR, notas ou cookies. */
-export function textoRelato(tela = 'Configurações') {
-  const ios = /OS (\d+[._]\d+)/.exec(navigator.userAgent)?.[1]?.replace('_', '.') ?? 'desconhecido';
-  return `UFAC+ ${VERSAO} (iPhone/PWA)\niOS ${ios}\nTela: ${tela}\n\nO que aconteceu?\n`;
-}
-
 export default async function configuracoes(tela, { voltar, ir, perfil, acoes }) {
   async function desenhar() {
     const prefs = await lerPrefs();
@@ -60,7 +55,7 @@ export default async function configuracoes(tela, { voltar, ir, perfil, acoes })
 
       <section class="cartao vidro lista" style="padding:4px 0">
         ${classroomConectado() ? item({ icone: 'quadro', titulo: 'Desconectar o Classroom', sub: 'Tira o acesso do app à sua conta do Google', acao: 'desconectar-classroom' }) : ''}
-        ${item({ icone: 'info', titulo: 'Relatar um problema', sub: CONTATO_EMAIL ? 'Por e-mail, você revisa antes de enviar' : 'Contato ainda não configurado', acao: CONTATO_EMAIL ? 'relatar' : '' })}
+        ${item({ icone: 'info', titulo: 'Relatar um problema', sub: 'Manda os últimos erros do app, sem seus dados', acao: 'relatar' })}
         ${item({ icone: 'atualizar', titulo: 'Limpar dados salvos', sub: 'Lê tudo de novo da Ufac; não sai da conta', acao: 'limpar' })}
         ${item({ icone: 'cadeado', titulo: 'Privacidade', href: '/privacidade/' })}
         ${item({ icone: 'celular', titulo: 'Como instalar no iPhone', href: '/instalar/' })}
@@ -129,13 +124,11 @@ export default async function configuracoes(tela, { voltar, ir, perfil, acoes })
     await apagar('foto');
     desenhar();
   };
-  acoes.relatar = () => {
-    location.href = `mailto:${CONTATO_EMAIL}?subject=${encodeURIComponent('UFAC+ iPhone: problema')}&body=${encodeURIComponent(textoRelato())}`;
-  };
+  acoes.relatar = () => ir('relatar/Configurações');
   acoes.limpar = async () => {
     const ok = await confirmar({ titulo: 'Limpar dados salvos?', texto: 'Apaga notas, horários, saldo e cardápio deste iPhone. Você continua na conta e tudo é lido de novo da Ufac.', sim: 'Limpar' });
     if (!ok) return;
-    for (const k of ['ru', 'cardapio', 'identificacao', 'horarios', 'notas', 'historico', 'classroom', 'professor', 'idInterno', 'urlMaisRelatorios', 'urlComunicacoes']) await apagar(k);
+    for (const k of ['ru', 'cardapio', 'identificacao', 'horarios', 'notas', 'historico', 'classroom', 'professor', 'idInterno', 'urlMaisRelatorios', 'urlComunicacoes', 'diagnosticoPortal', 'registro']) await apagar(k);
     avisar('Dados apagados. Tudo será lido de novo.');
   };
   acoes['desconectar-classroom'] = async () => {

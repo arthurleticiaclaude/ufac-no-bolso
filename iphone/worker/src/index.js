@@ -24,7 +24,7 @@ export function origemPermitida(origem, env) {
 function comCors(resposta, origem) {
   const r = new Response(resposta.body, resposta);
   r.headers.set('Access-Control-Allow-Origin', origem);
-  r.headers.set('Access-Control-Expose-Headers', 'X-Sessao, X-Url-Final, Content-Disposition');
+  r.headers.set('Access-Control-Expose-Headers', 'X-Sessao, X-Url-Final, Content-Disposition, X-Tentativas');
   r.headers.set('Vary', 'Origin');
   return r;
 }

@@ -12,6 +12,8 @@ export function classificar(sistema, endereco) {
     const raiz = sistema === 'portal' ? '/aluno' : '/professor';
     if (uri.hostname !== 'portal.ufac.br') return 'outra';
     if (caminho.includes('j_security_check') || caminho.includes('/publico')) return 'outra';
+    // Senha vencida ou provisória: o Portal leva toda página para "Alterar Senha" do Portal do Usuário.
+    if (caminho.startsWith('/usuario/usuario/')) return 'trocarSenha';
     if (caminho.includes('login') || caminho.includes('logout')) return 'naLogin';
     return caminho.startsWith(raiz) ? 'logado' : 'outra';
   }

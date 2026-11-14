@@ -2,9 +2,9 @@
 
 **No ar:** app em https://ufac-plus-ios.pages.dev (instalar: https://ufac-plus-ios.pages.dev/instalar/) e Worker em https://ufac-plus-ios.ufacplus.workers.dev, na conta Cloudflare do Matheus (publicado em 12/11/2026).
 
-Versão do UFAC+ para iPhone, como app da web instalável (PWA). O original fica na branch `ios-pwa` do repositório privado `ufac-plus`; a `main` (Android/Flutter) não muda.
+Versão do UFAC+ para iPhone, como app da web instalável (PWA). Fica na pasta `iphone/` do repositório público [`ufac-plus/ufac-plus`](https://github.com/ufac-plus/ufac-plus), ao lado do Android (`android/`), na branch `main`.
 
-**Código aberto:** uma cópia pública fica na pasta [`iphone/`](https://github.com/arthurleticiaclaude/ufac-no-bolso/tree/main/iphone) do repositório das releases (`arthurleticiaclaude/ufac-no-bolso`), com as fixtures anonimizadas para os testes rodarem lá. Para atualizar: clonar o `ufac-no-bolso`, rodar `ios-pwa/tools/publicar-codigo.sh <clone>` (copia só o que está commitado), conferir o `git diff` e fazer o commit e o push de lá.
+**Código aberto:** tudo aqui é público. Nunca commitar `.env.production`, `.dev.vars`, `fixtures/raw/`, CPF, matrícula, número do QR, cookies ou prints com dados reais.
 
 **Por que PWA:** desde o acordo com o CADE (iOS 26.5), a Apple aceita apps fora da App Store, mas exige notarização, que pede a conta Apple Developer paga (US$ 99/ano). Sem pagar, a via viável é o site instalado pelo Safari (Compartilhar › Adicionar à Tela de Início), que no iOS 26 abre como app.
 
@@ -35,7 +35,7 @@ Versão do UFAC+ para iPhone, como app da web instalável (PWA). O original fica
 ## Rodar no Mac
 
 ```bash
-cd ios-pwa
+cd iphone
 npm install
 node worker/scripts/gerar-chaves.mjs --dev   # cria worker/.dev.vars (fora do git)
 npm run dev:worker                            # Worker em http://localhost:8787
@@ -60,7 +60,7 @@ Precisa de uma conta gratuita da Cloudflare (`npx wrangler login` abre o navegad
 4. **PWA:** copie `web/.env.production.example` para `web/.env.production`, preencha `VITE_WORKER_URL` e rode `npm run deploy -w web`. Atenção: o `wrangler` 4.16x tenta converter o projeto em Worker (cria `web/wrangler.jsonc` e mexe no `package.json`); se isso acontecer, desfaça com `git checkout` e apague o `wrangler.jsonc`. O projeto do Pages já existe, então `npx wrangler pages deploy dist --project-name ufac-plus-ios --branch main` publica direto. O endereço será `https://ufac-plus-ios.pages.dev` (se o nome estiver ocupado, troque `--project-name` e ajuste `ORIGENS` e `VAPID_ASSUNTO` em `wrangler.toml`).
 5. Abra `https://ufac-plus-ios.pages.dev/instalar/` no iPhone.
 
-**Ligar ao GitHub (deploy automático da branch `ios-pwa`):** no painel da Cloudflare, *Workers & Pages › Create › Pages › Connect to Git*. Isso instala o app da Cloudflare no GitHub do dono do repositório, então **quem faz é o Arthur** (você tem permissão de escrita, não de administrador). Configuração: branch de produção `ios-pwa`, diretório raiz `ios-pwa/web`, comando `npm install && npm run build`, saída `dist`, variáveis `VITE_*` do passo 4. O Worker pode ser ligado do mesmo jeito em *Workers › Settings › Builds* (raiz `ios-pwa/worker`). Até lá, os comandos acima publicam a partir do seu Mac.
+**Ligar ao GitHub (deploy automático):** no painel da Cloudflare, *Workers & Pages › Create › Pages › Connect to Git*, escolhendo `ufac-plus/ufac-plus` (o Matheus e o Arthur são donos da organização, então qualquer um dos dois pode instalar o app da Cloudflare). Configuração: branch de produção `main`, diretório raiz `iphone/web`, comando `npm install && npm run build`, saída `dist`, variáveis `VITE_*` do passo 4. O Worker pode ser ligado do mesmo jeito em *Workers › Settings › Builds* (raiz `iphone/worker`). Até lá, os comandos acima publicam a partir do Mac.
 
 ### Classroom (opcional)
 
@@ -73,6 +73,23 @@ O ID do cliente Android não serve na web. No Google Cloud (pode ser um projeto 
 5. Depois que funcionar: *Público › Publicar app* (Em produção), **sem** pedir verificação. Em "Teste" a autorização vence em 7 dias; em produção não verificado ela dura (com o aviso "app não verificado" e teto de 100 pessoas).
 
 Se a conta da Ufac mostrar "Acesso bloqueado" pela instituição, a Ufac bloqueia apps externos: não há contorno, só o botão "Abrir o Classroom".
+
+## Bugs e features: GitHub Issues
+
+A lista única de bugs e features do UFAC+ (Android e iPhone) fica nas Issues de `ufac-plus/ufac-plus` (o mesmo repositório do código e das Releases). Etiquetas: `tipo:bug`/`tipo:feature`, `plataforma:android`/`plataforma:iphone`, `resolvido:android`/`resolvido:iphone` (feito numa plataforma só) e `prioridade:alta`.
+
+**Ao começar a mexer no PWA, a IA roda:**
+```bash
+gh issue list --repo ufac-plus/ufac-plus --label plataforma:iphone
+```
+e lê a issue antes de mexer no assunto (`gh issue view <n> --repo ufac-plus/ufac-plus`).
+
+**Ao resolver algo no iPhone:**
+1. Comentar com o commit: `gh issue comment <n> --repo ufac-plus/ufac-plus --body "Resolvido no iPhone em <commit>: <resumo>"`.
+2. Se a issue também tem `plataforma:android`, só pôr a etiqueta e deixar aberta: `gh issue edit <n> --repo ufac-plus/ufac-plus --add-label resolvido:iphone`. Fecha quando as duas plataformas estiverem resolvidas.
+3. Se é só do iPhone (ou o Android já tem `resolvido:android`): `gh issue close <n> --repo ufac-plus/ufac-plus`.
+
+Bug ou ideia nova: `gh issue create` com as etiquetas certas. Criar, comentar ou fechar issue só com o ok do Matheus. Nunca pôr CPF, matrícula, número do QR, cookies ou prints com dados reais numa issue.
 
 ## Estado em 12/11/2026 (para a próxima sessão)
 
@@ -87,7 +104,7 @@ Se a conta da Ufac mostrar "Acesso bloqueado" pela instituição, a Ufac bloquei
 - **Debug de 12/11 (tarde):** o "carregando infinito" ao puxar a Início vinha do eTICKET (sistemas.ufac.br), que às vezes fica sem responder (inclusive fora da Cloudflare); o app esperava para sempre. Agora: limite de 25 s por pedido no app e 20 s no Worker (responde 504), o IndexedDB não trava quando o iOS derruba a conexão, Portal/eTICKET/Classroom em paralelo e o resto do sistema é pulado quando ele está fora. O piscar da Início e do RU vinha de redesenhar tudo com `innerHTML` (vidro refeito, foto recarregada, animação reiniciada): agora `remontar()` (ui/componentes.js) mexe só no que mudou. Testes e2e cobrem os dois casos. Ideias da Biblioteca e do ônibus em `funcionalidades-futuras.md`.
 - **eTICKET instável (diagnóstico de 12/11, com o Fable):** o DNS de sistemas.ufac.br tem dois IPs. O `200.129.173.8` entrega o certificado do portal.ufac.br (falha na hora). No `200.129.173.36`, cerca de metade das conexões novas nunca recebe resposta, e as boas respondem em ~0,35 s; numa conexão boa, os pedidos seguintes também vão bem. O Worker agora repete cada salto do eTICKET com conexão nova e prazos curtos até os cabeçalhos (GET: até 9 tentativas, 1,2 s → 3 s; POST do login: 2 de 6 s; o Portal não repete). Medido depois: 25 de 25 pedidos com sucesso, a maioria na 1ª ou 2ª tentativa. O cabeçalho `X-Tentativas` mostra o que aconteceu em cada uma (sem dado pessoal). Correção definitiva é da Ufac: avisar o NTI do registro `.8` e do servidor que trava.
 
-**Release no GitHub (mesmo repositório público das releases do Android, `arthurleticiaclaude/ufac-no-bolso`):** tag `iphone-vX.Y.Z`, sem arquivo para baixar (só notas, QR da página `/instalar` e prints com dados fictícios de `e2e/prints`). **Sempre com `--latest=false`**: o app Android procura atualização em `/releases/latest` e só aceita release com `.apk`; se a do iPhone virar "Latest", o Android para de ver versões novas. Ex.: `gh release create iphone-v1.0.1 -R arthurleticiaclaude/ufac-no-bolso --target main --title "UFAC+ para iPhone 1.0.1" --notes-file notas.md --latest=false <imagens>`. A 1.0 saiu em 12/11/2026.
+**Release no GitHub (`ufac-plus/ufac-plus`, o mesmo das releases do Android):** título `UFAC+ iPhone X.Y`, tag `iphone-vX.Y`, notas no modelo "Novidades / Correções / Como atualizar", sem arquivo para baixar (só notas, QR da página `/instalar` e prints com dados fictícios de `e2e/prints`). **Sempre com `--latest=false`**: o app Android procura atualização em `/releases/latest` e só aceita release com `.apk`; se a do iPhone virar "Latest", o Android para de ver versões novas. Ex.: `gh release create iphone-v1.2 -R ufac-plus/ufac-plus --target main --title "UFAC+ iPhone 1.2" --notes-file notas.md --latest=false <imagens>`. A última publicada é a 1.1; a próxima é a 1.2.
 
 **Publicar:** `npm run build -w web` gera `web/dist` (os testes e2e usam `web/dist-e2e` e não sobrescrevem). Publicar o app: `cd web && npx wrangler pages deploy dist --project-name ufac-plus-ios --branch main --commit-dirty=true`. Publicar o Worker: `cd worker && npx wrangler deploy`. O Claude só publica sozinho se houver a regra de permissão em `.claude/settings.local.json` (o Matheus cria; o Claude não pode dar permissão a si mesmo).
 

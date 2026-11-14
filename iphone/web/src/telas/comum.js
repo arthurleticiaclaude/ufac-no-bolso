@@ -13,10 +13,21 @@ export function fraseDeFalha(erro, nome, lidoEm) {
   return `Algo deu errado ao ler ${nome}.${quando}`;
 }
 
-export const faixaFalha = (texto) => faixa({ icone: 'semConexao', titulo: texto, tipo: '' });
+export const faixaFalha = (texto) => faixa({ icone: 'semConexao', titulo: texto, tipo: '', acao: 'relatar', rotuloAcao: 'Relatar' });
+
+// Lido por expirado() logo antes de cada faixaExpirada(): todas as telas chamam as duas juntas.
+let pedeSenhaNova = false;
 
 export const faixaExpirada = (sistema) =>
-  faixa({
+  sistema !== 'eticket' && pedeSenhaNova
+    ? faixa({
+        icone: 'cadeado',
+        titulo: 'O Portal pede uma senha nova',
+        texto: 'Troque no site da Ufac e depois entre de novo aqui com a senha nova.',
+        acao: 'trocar-senha-portal',
+        rotuloAcao: 'Abrir o site',
+      })
+    : faixa({
     icone: 'cadeado',
     titulo: sistema === 'eticket' ? 'Sua sessão do eTICKET terminou' : 'Sua sessão do Portal terminou',
     texto: 'Os dados salvos continuam aqui.',
@@ -25,6 +36,7 @@ export const faixaExpirada = (sistema) =>
   });
 
 export async function expirado(sistema) {
+  if (sistema !== 'eticket') pedeSenhaNova = (await ler('portalPedeSenha')) === true;
   return ((await ler('expirados')) ?? []).includes(sistema);
 }
 

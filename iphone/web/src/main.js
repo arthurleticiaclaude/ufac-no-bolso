@@ -7,6 +7,8 @@ import { atualizarSelo, lerPrefs, sincronizarAgenda } from './lib/push.js';
 import { loginConcluido } from './lib/sessao.js';
 import { avisar, html, ic, montar } from './ui/componentes.js';
 import { concluirRetornoDoGoogle } from './lib/classroom.js';
+import { registrar } from './lib/registro.js';
+import { URL_PORTAL_ALUNO, URL_PORTAL_PROFESSOR } from './lib/config.js';
 
 const ABAS = {
   aluno: [
@@ -36,6 +38,7 @@ const TELAS = {
   menu: () => import('./telas/menu.js'),
   configuracoes: () => import('./telas/configuracoes.js'),
   historico: () => import('./telas/historico.js'),
+  relatar: () => import('./telas/relatar.js'),
 };
 
 const app = document.getElementById('app');
@@ -97,7 +100,7 @@ async function renderizar() {
   let { nome, parametro } = rotaAtual();
   const logado = await loginConcluido();
   const perfil = (await ler('perfil')) ?? 'aluno';
-  if (!logado && nome !== 'login') nome = 'boas-vindas';
+  if (!logado && nome !== 'login' && nome !== 'relatar') nome = 'boas-vindas';
   if (logado && (nome === 'boas-vindas' || !TELAS[nome])) nome = 'inicio';
   if (perfil === 'professor' && ['notas', 'relatorios', 'ru'].includes(nome)) nome = 'inicio';
   await aplicarAparencia();
@@ -113,11 +116,19 @@ async function renderizar() {
   const ctx = { ir, voltar, parametro, perfil, renderizar };
   // Cada tela liga os próprios botões por data-acao.
   const acoes = {};
+  // Valem em qualquer tela (faixas de erro, login), a menos que a tela tenha a sua.
+  const globais = {
+    relatar: () => ir(`relatar/${encodeURIComponent(nome)}`),
+    // A troca de senha é no site oficial, no Safari: o app nunca recebe a senha nova antes do login.
+    'trocar-senha-portal': () => window.open(perfil === 'professor' ? URL_PORTAL_PROFESSOR : URL_PORTAL_ALUNO, '_blank', 'noopener'),
+  };
   tela.addEventListener('click', (e) => {
     const alvo = e.target.closest('[data-acao]');
-    if (alvo && acoes[alvo.dataset.acao]) {
+    // "relatar" funciona em qualquer tela (faixas de erro, login): abre o relato dizendo de onde veio.
+    const acao = alvo && (acoes[alvo.dataset.acao] ?? globais[alvo.dataset.acao]);
+    if (acao) {
       e.preventDefault();
-      acoes[alvo.dataset.acao](alvo, e);
+      acao(alvo, e);
     }
   });
   ctx.acoes = acoes;
@@ -148,6 +159,11 @@ async function renderizar() {
   await execucao;
   ultimaAtualizacao = Date.now();
 }
+
+// Erros do próprio app vão para o registro do "Relatar um problema" (só a mensagem e onde, anonimizadas).
+const ondeNoCodigo = (pilha) => String(pilha ?? '').split('\n').slice(0, 3).map((l) => l.replace(/https?:\/\/[^/]+/g, '').trim()).join(' < ');
+window.addEventListener('error', (e) => registrar('app', { erro: e.message, onde: ondeNoCodigo(e.error?.stack) || `${e.filename?.replace(/https?:\/\/[^/]+/, '')}:${e.lineno}`, tela: rotaAtual().nome }));
+window.addEventListener('unhandledrejection', (e) => registrar('app', { erro: e.reason?.message ?? String(e.reason), onde: ondeNoCodigo(e.reason?.stack), tela: rotaAtual().nome }));
 
 // Ao voltar para o app: atualiza no máximo a cada 15 minutos (regra de respeito à Ufac).
 document.addEventListener('visibilitychange', () => {
