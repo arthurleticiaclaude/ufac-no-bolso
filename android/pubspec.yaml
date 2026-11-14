@@ -2,7 +2,7 @@ name: ufac_no_bolso
 description: "Portal do Aluno e RU da Ufac num app só. App independente, não oficial."
 publish_to: 'none'
 
-version: 0.1.11+12
+version: 0.1.12+13
 
 environment:
   sdk: ^3.13.7

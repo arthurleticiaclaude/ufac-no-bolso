@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../config.dart';
 import '../data/academico.dart';
@@ -187,7 +188,14 @@ class _CartaoIdentificacao extends StatelessWidget {
           const SizedBox(height: 14),
           Row(
             children: [
-              Expanded(flex: 5, child: _BlocoDado(rotulo: 'Matrícula', valor: matricula ?? '–')),
+              Expanded(
+                flex: 5,
+                child: _BlocoDado(
+                  rotulo: 'Matrícula',
+                  valor: matricula ?? '–',
+                  aoTocar: matricula == null ? null : () => _copiarMatricula(context, matricula!),
+                ),
+              ),
               const SizedBox(width: 8),
               Expanded(flex: 3, child: _BlocoDado(rotulo: 'Período', valor: '${identificacao.periodo}º')),
               const SizedBox(width: 8),
@@ -203,21 +211,42 @@ class _CartaoIdentificacao extends StatelessWidget {
   }
 }
 
+/// Copia a matrícula com um toque. Ela não vai para log nem para notificação: só para a
+/// área de transferência, porque a própria pessoa pediu.
+Future<void> _copiarMatricula(BuildContext context, String matricula) async {
+  final mensageiro = ScaffoldMessenger.of(context);
+  await Clipboard.setData(ClipboardData(text: matricula));
+  await HapticFeedback.lightImpact();
+  mensageiro
+    ..hideCurrentSnackBar()
+    ..showSnackBar(const SnackBar(content: Text('Matrícula copiada')));
+}
+
 class _BlocoDado extends StatelessWidget {
-  const _BlocoDado({required this.rotulo, required this.valor});
+  const _BlocoDado({required this.rotulo, required this.valor, this.aoTocar});
 
   final String rotulo, valor;
+
+  /// Quando existe, o bloco vira um botão e mostra o ícone de copiar.
+  final VoidCallback? aoTocar;
 
   @override
   Widget build(BuildContext context) {
     final c = context.cores;
-    return Container(
+    final raio = BorderRadius.circular(AppMedidas.raioBotao);
+    // Ink (e não Container) para a ondinha do toque aparecer por cima do fundo.
+    final bloco = Ink(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: BoxDecoration(color: c.fundo, borderRadius: BorderRadius.circular(AppMedidas.raioBotao)),
+      decoration: BoxDecoration(color: c.fundo, borderRadius: raio),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(rotulo, style: AppTexto.rotulo.copyWith(color: c.secundario)),
+          Row(
+            children: [
+              Expanded(child: Text(rotulo, style: AppTexto.rotulo.copyWith(color: c.secundario))),
+              if (aoTocar != null) Icon(Icons.content_copy_rounded, size: 14, color: c.secundario),
+            ],
+          ),
           const SizedBox(height: 2),
           FittedBox(
             fit: BoxFit.scaleDown,
@@ -225,6 +254,17 @@ class _BlocoDado extends StatelessWidget {
             child: Text(valor, style: AppTexto.corpoForte),
           ),
         ],
+      ),
+    );
+    if (aoTocar == null) return bloco;
+    return Semantics(
+      button: true,
+      label: '$rotulo $valor. Toque para copiar',
+      excludeSemantics: true,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: raio,
+        child: InkWell(borderRadius: raio, onTap: aoTocar, child: bloco),
       ),
     );
   }
